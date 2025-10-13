@@ -8,12 +8,12 @@ pipeline {
         }
         stage('Test') {
             steps {
-                pwd
+                sh 'pwd'
             }
         }
         stage('Deploy') {
             steps {
-                whoami
+                sh 'whoami'
             }
         }
     }  
