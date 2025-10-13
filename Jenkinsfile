@@ -8,15 +8,13 @@ pipeline {
         }
         stage('Test') {
             steps {
-                echo 'Testing...'
+                pwd
             }
         }
         stage('Deploy') {
             steps {
-                echo 'Deploying...'
+                whoami
             }
         }
-    }
-
-    
+    }  
 }
