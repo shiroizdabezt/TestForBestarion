@@ -1,0 +1,20 @@
+jenkins:
+  systemMessage: "Managed by Ansible + JCasC"
+  numExecutors: 2
+
+  globalLibraries:
+    libraries:
+      - name: "{{ jenkins_sharedlib_name }}"
+        defaultVersion: "main"
+        implicit: false
+        allowVersionOverride: true
+        retriever:
+          modernSCM:
+            scm:
+              git:
+                remote: "{{ jenkins_sharedlib_repo }}"
+                credentialsId: "{{ jenkins_sharedlib_credentials_id }}"
+
+unclassified:
+  location:
+    url: "http://{{ ansible_host }}:{{ jenkins_http_port }}/"

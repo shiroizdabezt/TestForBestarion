@@ -1,0 +1,38 @@
+jenkins_http_port: 8080
+jenkins_hostname: "{{ ansible_host }}"
+jenkins_admin_username: admin
+jenkins_admin_password: "{{ vault_admin_pass }}"
+jenkins_plugins:
+  - configuration-as-code
+  - git
+  - credentials
+  - plain-credentials
+  - matrix-auth
+  - workflow-aggregator
+  - workflow-cps-global-lib
+  - job-dsl
+  - command-launcher
+  - role-strategy
+
+# Vị trí JCasC
+jenkins_home: /var/lib/jenkins
+jenkins_casc_dir: "{{ jenkins_home }}/casc_configs"
+jenkins_casc_file: "{{ jenkins_casc_dir }}/jcasc.yaml"
+jenkins_java_options: >-
+  -Djava.awt.headless=true
+  -Djenkins.install.runSetupWizard=false
+  -Dcasc.jenkins.config={{ jenkins_casc_dir }}
+jenkins_env_vars:
+  CASC_JENKINS_CONFIG: "{{ jenkins_casc_dir }}"
+
+# Shared lib
+jenkins_sharedlib_repo: "https://github.com/shiroizdabezt/TestForBestarion.git"
+jenkins_sharedlib_name: "team-lib"
+jenkins_sharedlib_credentials_id: "git-readonly"
+
+
+jenkins_version: "2.528"
+jenkins_pkg_version: "2.528.1" 
+ansible_become: yes
+ansible_become_method: sudo
+ansible_become_user: root

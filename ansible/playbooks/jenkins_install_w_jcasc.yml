@@ -1,0 +1,362 @@
+# playbooks/install_jenkins_standalone.yml
+---
+- name: Install Jenkins 2.528.1 (standalone) + predefined plugins
+  hosts: jenkins
+  become: true
+
+  vars_files:
+    ../group_vars/jenkins.yml
+    ../group_vars/vault.yml
+
+  handlers:
+    - name: Restart Jenkins
+      ansible.builtin.service:
+        name: jenkins
+        state: restarted
+
+  tasks:
+    - name: Install prerequisites & Java 21
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - openjdk-21-jre
+        state: present
+        update_cache: yes
+
+    - name: Add Jenkins apt key (signed-by)
+      ansible.builtin.shell: |
+        set -euo pipefail
+        install -m 0755 -d /usr/share/keyrings
+        curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key \
+          -o /usr/share/keyrings/jenkins-keyring.asc
+      args:
+        creates: /usr/share/keyrings/jenkins-keyring.asc
+
+    - name: Add Jenkins apt repository
+      ansible.builtin.copy:
+        dest: /etc/apt/sources.list.d/jenkins.list
+        mode: '0644'
+        content: |
+          deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/
+
+    - name: apt update
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Ensure exact Jenkins version is available (apt-cache)
+      ansible.builtin.shell: |
+        apt-cache policy jenkins | awk '/Candidate|Installed|Version table/ {print} /{{ jenkins_pkg_version | regex_escape }}/ {found=1} END {exit (found?0:1)}'
+      register: check_ver
+      changed_when: false
+      failed_when: check_ver.rc != 0
+      tags: verify
+
+    - name: Install Jenkins exact version
+      ansible.builtin.apt:
+        name: "jenkins={{ jenkins_pkg_version }}"
+        state: present
+
+    - name: Configure Jenkins port
+      ansible.builtin.lineinfile:
+        path: /etc/default/jenkins
+        regexp: '^HTTP_PORT='
+        line: "HTTP_PORT={{ jenkins_http_port }}"
+      notify: Restart Jenkins
+
+    - name: Disable setup wizard via JAVA_ARGS
+      ansible.builtin.lineinfile:
+        path: /etc/default/jenkins
+        regexp: '^JAVA_ARGS='
+        line: 'JAVA_ARGS="-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"'
+        create: yes
+      notify: Restart Jenkins
+
+    - name: Ensure init.groovy.d exists
+      ansible.builtin.file:
+        path: /var/lib/jenkins/init.groovy.d
+        state: directory
+        owner: jenkins
+        group: jenkins
+        mode: '0755'
+
+    - name: 01-disable-wizard.groovy
+      ansible.builtin.copy:
+        dest: /var/lib/jenkins/init.groovy.d/01-disable-wizard.groovy
+        owner: jenkins
+        group: jenkins
+        mode: '0644'
+        content: |
+          import jenkins.model.*
+          Jenkins.instance.setInstallState(InstallState.INITIAL_SETUP_COMPLETED)
+      notify: Restart Jenkins
+
+    - name: 02-create-admin.groovy
+      ansible.builtin.copy:
+        dest: /var/lib/jenkins/init.groovy.d/02-create-admin.groovy
+        owner: jenkins
+        group: jenkins
+        mode: '0640'
+        content: |
+          import jenkins.model.*
+          import hudson.security.*
+          def instance = Jenkins.get()
+          def hudsonRealm = new HudsonPrivateSecurityRealm(false)
+          if (hudsonRealm.getUser("{{ jenkins_admin_username }}") == null) {
+            hudsonRealm.createAccount("{{ jenkins_admin_username }}","{{ jenkins_admin_password }}")
+          }
+          instance.setSecurityRealm(hudsonRealm)
+          def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
+          strategy.setAllowAnonymousRead(false)
+          instance.setAuthorizationStrategy(strategy)
+          instance.save()
+      notify: Restart Jenkins
+
+    - name: 03-install-plugins.groovy
+      ansible.builtin.copy:
+        dest: /var/lib/jenkins/init.groovy.d/03-install-plugins.groovy
+        owner: jenkins
+        group: jenkins
+        mode: '0644'
+        content: |
+          import jenkins.model.*
+          def instance = Jenkins.get()
+          def pm = instance.getPluginManager()
+          def uc = instance.getUpdateCenter()
+          uc.updateAllSites()
+
+          def required = {{ jenkins_plugins | to_nice_json }}
+          def toInstall = []
+          required.each { name ->
+            if (pm.getPlugin(name) == null) {
+              def p = uc.getPlugin(name)
+              if (p != null) { toInstall << p } else { println("Plugin not found: " + name) }
+            }
+          }
+
+          if (!toInstall.isEmpty()) {
+            println("Installing plugins: " + toInstall*.displayName)
+            def f = uc.install(toInstall, false)
+            f.get()   // wait for completion
+            instance.save()
+            println("Plugins installed. Safe restarting Jenkins...")
+            instance.safeRestart()
+          } else {
+            println("All required plugins already installed.")
+          }
+      notify: Restart Jenkins
+
+    - name: Fix ownership for Jenkins home/log/cache
+      ansible.builtin.file:
+        path: "{{ item }}"
+        owner: jenkins
+        group: jenkins
+        recurse: yes
+      loop:
+        - /var/lib/jenkins
+        - /var/log/jenkins
+        - /var/cache/jenkins
+
+    - name: Enable & start Jenkins
+      ansible.builtin.service:
+        name: jenkins
+        enabled: true
+        state: started
+
+    - name: Wait for Jenkins to respond (login or 403/302)
+      ansible.builtin.uri:
+        url: "http://localhost:{{ jenkins_http_port }}/login"
+        method: GET
+        status_code: 200,302,403
+      register: up
+      retries: 40
+      delay: 5
+      until: up.status in [200,302,403]
+
+
+
+  # tasks:
+  #   - name: Create JCasC directory
+  #     file:
+  #       path: "{{ jenkins_casc_dir }}"
+  #       owner: jenkins
+  #       group: jenkins
+  #       mode: '0755'
+  #       state: directory
+
+  #   - name: Copy jcasc.yaml
+  #     copy:
+  #       src: ../files/
+  #       dest: "{{ jenkins_casc_dir }}"
+  #       owner: jenkins
+  #       group: jenkins
+  #       mode: '0640'
+  #     notify: Restart Jenkins
+
+  #   - name: Set CASC_JENKINS_CONFIG env variable
+  #     lineinfile:
+  #       dest: /etc/default/jenkins
+  #       regexp: '^CASC_JENKINS_CONFIG='
+  #       line: "CASC_JENKINS_CONFIG={{ jenkins_casc_dir }}"
+  #       create: yes
+  #     notify: Restart Jenkins
+
+  #   # Đợi Jenkins sẵn sàng sau khi restart (port mở và trả về 200/403/302)
+  #   - name: Wait for Jenkins to be up
+  #     ansible.builtin.uri:
+  #       url: "http://localhost:8080/login"
+  #       method: GET
+  #       status_code: 200,302,403
+  #     register: jenkins_up
+  #     retries: 40
+  #     delay: 5
+  #     until: jenkins_up.status in [200,302,403]
+
+  #   # Lấy CSRF crumb (dùng admin + API token)
+  #   - name: Get Jenkins crumb
+  #     ansible.builtin.uri:
+  #       url: "http://localhost:8080/crumbIssuer/api/json"
+  #       method: GET
+  #       user: "{{ jenkins_admin_username }}"
+  #       password: "{{ vault_admin_pass }}"
+  #       force_basic_auth: true
+  #       return_content: true
+  #       status_code: 200
+  #     register: crumb_info
+
+  #   # Gửi POST reload kèm crumb
+  #   - name: Reload JCasC configuration
+  #     ansible.builtin.uri:
+  #       url: "http://localhost:8080/configuration-as-code/reload"
+  #       method: POST
+  #       user: "{{ jenkins_admin_username }}"
+  #       password: "{{ vault_admin_pass }}"
+  #       force_basic_auth: true
+  #       headers:
+  #         "{{ crumb_info.json.crumbRequestField }}": "{{ crumb_info.json.crumb }}"
+  #       status_code: 200
+
+  # handlers:
+  #   - name: Restart Jenkins
+  #     service:
+  #       name: jenkins
+  #       state: restarted
+# ---
+# - name: Setup Jenkins Master with JCasC (stable order)
+#   hosts: jenkins
+#   become: yes
+#   vars_files:
+#     - ../group_vars/jenkins.yml
+#     - ../group_vars/vault.yml
+
+#   pre_tasks:
+#     - name: Ensure required plugins list includes JCasC
+#       set_fact:
+#         all_jenkins_plugins: >-
+#           {{ (jenkins_plugins | default([]))
+#               + ['configuration-as-code', 'configuration-as-code-support'] | unique }}
+
+#   roles:
+#     - role: geerlingguy.jenkins
+#       vars:
+#         all_jenkins_plugins: "{{ jenkins_plugins }}"
+#         # Khuyến nghị bật luôn Java option tắt setup wizard để JCasC apply từ lần đầu
+#         final_jenkins_java_options: >-
+#           -Djenkins.install.runSetupWizard=false
+#           {{ jenkins_java_options | default('') }}
+
+#   tasks:
+#     - name: Create JCasC directory
+#       file:
+#         path: "{{ jenkins_casc_dir }}"
+#         owner: "{{ jenkins_user | default('jenkins') }}"
+#         group: "{{ jenkins_group | default('jenkins') }}"
+#         mode: '0755'
+#         state: directory
+
+#     - name: Copy all JCasC configs (*.yaml) into casc dir
+#       copy:
+#         src: ../files/
+#         dest: "{{ jenkins_casc_dir }}/"
+#         owner: "{{ jenkins_user | default('jenkins') }}"
+#         group: "{{ jenkins_group | default('jenkins') }}"
+#         mode: '0644'
+#       notify: Restart Jenkins
+
+#     # ⚠️ Đặt biến môi trường qua systemd drop-in để chắc chắn Jenkins nhận
+#     - name: Create systemd drop-in dir for Jenkins
+#       file:
+#         path: /etc/systemd/system/jenkins.service.d
+#         state: directory
+#         mode: '0755'
+
+#     - name: Set CASC_JENKINS_CONFIG and disable Setup Wizard via drop-in
+#       copy:
+#         dest: /etc/systemd/system/jenkins.service.d/override.conf
+#         content: |
+#           [Service]
+#           Environment="CASC_JENKINS_CONFIG={{ jenkins_casc_dir }}"
+#           Environment="JENKINS_INSTALL_RUN_SETUP_WIZARD=false"
+#       notify:
+#         - Systemd daemon-reload
+#         - Restart Jenkins
+
+#     # (Tuỳ distro, /etc/default/jenkins vẫn có tác dụng — giữ lại cho Debian/Ubuntu)
+#     - name: Also set CASC in /etc/default/jenkins (Debian-based safety)
+#       lineinfile:
+#         dest: /etc/default/jenkins
+#         regexp: '^CASC_JENKINS_CONFIG='
+#         line: "CASC_JENKINS_CONFIG={{ jenkins_casc_dir }}"
+#         create: yes
+#       when: ansible_facts['os_family'] == 'Debian'
+#       notify: Restart Jenkins
+
+#     # Chờ Jenkins thật sự lên rồi mới gọi reload
+#     - name: Wait for Jenkins to be up
+#       uri:
+#         url: "http://localhost:{{ jenkins_http_port | default(8080) }}/login"
+#         status_code: 200,403
+#         validate_certs: no
+#       register: wait_login
+#       retries: 30
+#       delay: 4
+#       until: wait_login.status in [200, 403]
+
+#     # (Tuỳ bạn: nếu đã tạo user admin qua JCasC, dùng token hoặc mật khẩu ở vault)
+#     - name: Reload JCasC configuration
+#       uri:
+#         url: "http://localhost:{{ jenkins_http_port | default(8080) }}/configuration-as-code/reload"
+#         method: POST
+#         user: "{{ jenkins_admin_username | default('admin') }}"
+#         password: "{{ jenkins_admin_password }}"
+#         force_basic_auth: true
+#         status_code: 200,302
+#       register: reload_resp
+#       failed_when: reload_resp.status not in [200, 302]
+
+#     # Kiểm tra kết quả áp dụng (endpoint trả JSON tình trạng)
+#     - name: Verify JCasC status
+#       uri:
+#         url: "http://localhost:{{ jenkins_http_port | default(8080) }}/configuration-as-code/check"
+#         method: GET
+#         user: "{{ jenkins_admin_username | default('admin') }}"
+#         password: "{{ jenkins_admin_password }}"
+#         force_basic_auth: true
+#         status_code: 200
+#         return_content: true
+#       register: jcasc_check
+
+#     - name: Show JCasC check result
+#       debug:
+#         var: jcasc_check.content
+
+#   handlers:
+#     - name: Systemd daemon-reload
+#       systemd:
+#         daemon_reload: yes
+
+#     - name: Restart Jenkins
+#       service:
+#         name: jenkins
+#         state: restarted
