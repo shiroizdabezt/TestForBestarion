@@ -1,0 +1,36 @@
+jobs:
+  - script: >
+      job('seed-casc') {
+        description('Seed job: process all Job DSL groovy under casc/jobs')
+        scm {
+          git {
+            remote {
+              url("${GITHUB_BRANCH}")
+              // nếu private:
+              credentials('github-key')
+            }
+            branch('*/feature/ansible-craete-Jenkins-master')
+          }
+        }
+        triggers {
+          // tuỳ chọn: chạy seed khi repo thay đổi (nếu có webhook)
+          githubPush()
+        }
+        steps {
+          jobDsl {
+            // ĐIỂM CHÍNH: đọc toàn bộ .groovy trong thư mục casc/jobs
+            targets('casc/jobs/**/*.groovy')
+
+            // Housekeeping/reconcile:
+            removedJobAction('DELETE')
+            removedViewAction('DELETE')
+            removedConfigFilesAction('DELETE')
+
+            // An toàn & độ bền:
+            ignoreMissingFiles(false)
+            failOnMissingPlugin(true)
+            lookupStrategy('JENKINS_ROOT')
+            // Nếu script dùng lệnh “nhạy cảm”, bật sandbox và phê duyệt:
+          }
+        }
+      }

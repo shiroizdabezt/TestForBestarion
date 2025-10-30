@@ -10,7 +10,7 @@ jobs:
                   url("${GITHUB_BRANCH}")
                   credentials('github-key')
                 }
-                branch('feature/ansible-craete-Jenkins-master')
+                branch('*/**')
               }
             }
             scriptPath('jenkins_home/casc/Jenkinsfile')
