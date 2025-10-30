@@ -24,7 +24,6 @@ jenkins:
           - name: "sysops"
             description: "Operations team - manage jobs and nodes"
             permissions:
-              - "Overall/Read"
               - "Job/Build"
               - "Job/Configure"
               - "Job/Delete"
