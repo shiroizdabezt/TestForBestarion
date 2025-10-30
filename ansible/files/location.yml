@@ -1,4 +1,0 @@
-unclassified:
-  location:
-    url: "http://{{ ansible_host }}:{{ jenkins_http_port }}/"
-    adminAddress: "jenkins@example.com"

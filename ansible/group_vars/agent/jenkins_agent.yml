@@ -1,0 +1,3 @@
+AGENT_NAME: "jenkins-agent"
+CONTROLLER_IP: "{{ host_ip }}"
+CONTROLLER_PORT: "{{ host_port }}"

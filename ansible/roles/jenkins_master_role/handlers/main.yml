@@ -1,0 +1,14 @@
+---
+# handlers file for jenkins_master_role
+    - name: Make sure Jenkins service is up
+      ansible.builtin.systemd:
+        name: jenkins
+        state: restarted
+        daemon_reload: true
+        enabled: true
+    
+    - name: Make sure a service unit is running
+      ansible.builtin.systemd_service:
+        state: restarted
+        daemon_reload: true
+        name: jenkins

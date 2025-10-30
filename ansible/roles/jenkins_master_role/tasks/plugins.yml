@@ -1,0 +1,40 @@
+    - name: Copy plugins.txt into /etc/jenkins/plugins
+      ansible.builtin.copy:
+        src: "../templates/plugins.txt"  
+        dest: "{{ jenkins_home }}/plugins/plugins.txt"
+        owner: jenkins
+        group: jenkins
+        mode: "0644"
+
+    - name: Download Jenkins Plugin Installation Manager (jenkins-plugin-manager.jar)
+      ansible.builtin.get_url:
+        url: "{{ plugins_download_manager.url }}"
+        dest: "{{ plugins_download_manager.path }}"
+        mode: "0755"
+      register: pim_dl
+
+    - name: Install plugins to $JENKINS_HOME/plugins (idempotent-ish)
+      ansible.builtin.command:
+        argv:
+          - /usr/bin/java
+          - -jar
+          - /usr/local/bin/jenkins-plugin-manager.jar
+          - --plugin-file
+          - "{{ jenkins_home }}/plugins/plugins.txt"
+          - --jenkins-version
+          - 2.528.1
+          - --plugin-download-directory
+          - "{{ jenkins_home }}/plugins"
+          - --verbose
+      environment:
+        JENKINS_HOME: "{{ jenkins_home }}"
+      register: pim_run
+      changed_when: "'No new plugins to install' not in pim_run.stdout"
+    
+    - name: Fix ownership of downloaded plugins
+      ansible.builtin.file:
+        path: "{{ jenkins_home }}/plugins"
+        owner: jenkins
+        group: jenkins
+        recurse: true
+        state: directory

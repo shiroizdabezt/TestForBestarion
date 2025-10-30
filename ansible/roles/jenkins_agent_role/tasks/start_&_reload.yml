@@ -1,0 +1,11 @@
+    - name: Enable & start agent
+      become: true
+      ansible.builtin.systemd:
+        name: "jenkins-agent.service"
+        enabled: true
+        state: started
+
+    - name: Reload-Daemon
+      become: true
+      ansible.builtin.command: 
+        cmd: sudo systemctl daemon-reload

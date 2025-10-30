@@ -1,0 +1,16 @@
+    - name: Ensure ownership of JENKINS_HOME (plugins, casc, etc.)
+      ansible.builtin.file:
+        path: "{{ jenkins_home }}"
+        state: directory
+        owner: jenkins
+        group: jenkins
+        mode: "0755"
+        recurse: true
+
+    - name: Copy JCasC
+      ansible.builtin.copy:
+        src: "{{ role_path }}/../../../jenkins_home/casc/"    
+        dest: "{{ jenkins_jcasc_dir }}"
+        owner: jenkins
+        group: jenkins
+        mode: "0600"

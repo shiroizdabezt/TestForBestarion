@@ -1,0 +1,11 @@
+jenkins:
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "${ADMIN_PASSWORD}"
+        - id: "sysops"
+          password: "${SYSOPS_PASSWORD}"
+        - id: "developer"
+          password: "${DEVELOPER_PASSWORD}"

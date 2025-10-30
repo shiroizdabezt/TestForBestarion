@@ -1,0 +1,13 @@
+jenkins:
+  nodes:
+    - permanent:
+        labelString: "RAM-Monitor"
+        launcher:
+          inbound:
+            workDirSettings:
+              disabled: false
+              failIfWorkDirIsMissing: false
+              internalDir: "remoting"
+        name: "${JENKINS_AGENT_NAME}"
+        remoteFS: "${JENKINS_AGENT_HOME_DIRECTORY}"
+        retentionStrategy: "always"

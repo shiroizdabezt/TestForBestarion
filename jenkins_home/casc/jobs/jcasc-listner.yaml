@@ -1,0 +1,26 @@
+jobs:
+  - script: |
+      pipelineJob('casc-pipeline') {
+        description('JCasC managed pipeline for testing')
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url("${GITHUB_BRANCH}")
+                  credentials('github-key')
+                }
+                branch('feature/ansible-craete-Jenkins-master')
+              }
+            }
+            scriptPath('jenkins_home/casc/Jenkinsfile')
+          }
+        }
+        triggers {
+          scm('H/1 * * * *')
+          githubPush()
+        }
+        properties {
+          disableConcurrentBuilds()
+        }
+      }

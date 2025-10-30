@@ -1,0 +1,26 @@
+jenkins:
+  crumbIssuer: null
+  disableRememberMe: false
+  labelAtoms:
+    - name: "built-in"
+    - name: "${JENKINS_AGENT_NAME}"
+  mode: NORMAL
+  numExecutors: 2
+  primaryView:
+    all:
+      name: "all"
+  quietPeriod: 5
+  remotingSecurity:
+    enabled: true
+  scmCheckoutRetryCount: 0
+  slaveAgentPort: 50000
+  remotingSecurity:
+    enabled: true
+  updateCenter:
+    sites:
+      - id: "default"
+        url: "https://updates.jenkins.io/update-center.json"
+  views:
+    - all:
+        name: "all"
+  viewsTabBar: "standard"

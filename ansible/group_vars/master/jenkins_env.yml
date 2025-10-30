@@ -1,0 +1,15 @@
+jenkins_environment: 
+  API_UNAME: admin
+  API_PASSWD: 1
+  SLACK_API_TOKEN: xoxb-9705339330017-9696910682564-WhHb8ByThGAGxoLxckWOmh5z
+  GITHUB_KEY: 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
+  CASC_JENKINS_CONFIG: /var/lib/jenkins/casc_configs
+  ADMIN_PASSWORD: 1
+  SYSOPS_PASSWORD: 1
+  DEVELOPER_PASSWORD: 1
+  CASC_RELOAD_TOKEN: abcd@1234
+  JENKINS_AGENT_NAME: jenkins-agent
+  JENKINS_AGENT_HOME_DIRECTORY: /home/jenkins
+  JENKINS_MASTER_HOME_DIRECTORY: /var/lib/jenkins
+  JENKINS_HOST_IP: "{{ host_ip }}"
+  GITHUB_BRANCH: "https://github.com/minhhieu16/bestarion-jenkins.git"

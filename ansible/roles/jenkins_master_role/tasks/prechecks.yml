@@ -1,0 +1,28 @@
+    - name: Apt update
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 0
+
+    - name: Ensure dirs exist
+      ansible.builtin.file:
+        path: "/tmp/jenkins/"
+        state: directory
+        owner: "{{ ansible_env.USER }}"
+        group: "{{ ansible_env.USER }}"
+        mode: "0755"
+
+    - name: Ensure dirs exist
+      ansible.builtin.file:
+        path: "/tmp/java/"
+        state: directory
+        owner: "{{ ansible_env.USER }}"
+        group: "{{ ansible_env.USER }}"
+        mode: "0755"
+    
+    - name: Ensure dirs exist
+      ansible.builtin.file:
+        path: "/tmp/fontconfig/"
+        state: directory
+        owner: "{{ ansible_env.USER }}"
+        group: "{{ ansible_env.USER }}"
+        mode: "0755"

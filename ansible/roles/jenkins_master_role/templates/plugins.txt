@@ -1,0 +1,10 @@
+configuration-as-code-groovy:1.1
+workflow-aggregator:608.v67378e9d3db_1
+git:5.8.0
+htmlpublisher:427
+role-strategy:840.v206ff7f7312e
+slack:795.v4b_9705b_e6d47
+ssh:158.ve2a_e90fb_7319
+configuration-as-code:2006.v001a_2ca_6b_574
+credentials:1447.v4cb_b_539b_5321
+job-dsl:1.87
