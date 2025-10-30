@@ -9,7 +9,7 @@ jobs:
               // nếu private:
               credentials('github-key')
             }
-            branch('*/feature/ansible-craete-Jenkins-master')
+            branch('*/**')
           }
         }
         triggers {
