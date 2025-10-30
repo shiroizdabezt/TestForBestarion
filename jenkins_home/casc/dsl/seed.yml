@@ -19,7 +19,7 @@ jobs:
         steps {
           jobDsl {
             // ĐIỂM CHÍNH: đọc toàn bộ .groovy trong thư mục casc/jobs
-            targets('casc/jobs/**/*.groovy')
+            targets('jenkins_home/casc/jobs/**/*.groovy')
 
             // Housekeeping/reconcile:
             removedJobAction('DELETE')
