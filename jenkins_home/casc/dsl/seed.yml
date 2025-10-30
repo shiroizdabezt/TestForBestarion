@@ -31,8 +31,6 @@ jobs:
             failOnMissingPlugin(true)
             lookupStrategy('JENKINS_ROOT')
             // Nếu script dùng lệnh “nhạy cảm”, bật sandbox và phê duyệt:
-            sandbox(true)
-            runAsUser('admin')
           }
         }
       }
