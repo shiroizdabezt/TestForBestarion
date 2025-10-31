@@ -1,4 +1,4 @@
-pipelineJob('casc-pipeline-2') {
+pipelineJob('casc-pipeline-3') {
   description('JCasC managed pipeline for testing')
 
   definition {
@@ -13,6 +13,7 @@ pipelineJob('casc-pipeline-2') {
         }
       }
       scriptPath('jenkins_home/casc/Jenkinsfile')
+      sandbox
     }
   }
 
