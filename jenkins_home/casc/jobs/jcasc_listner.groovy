@@ -13,7 +13,7 @@ pipelineJob('casc-pipeline-3') {
         }
       }
       scriptPath('jenkins_home/casc/Jenkinsfile')
-      sandbox
+      sandbox()
     }
   }
 
