@@ -8,4 +8,6 @@ security:
   sSHD:
     port: -1
   scriptApproval:
-    forceSandbox: false
+    approvedSignatures:
+      - "method groovy.json.JsonSlurperClassic call java.lang.String"   # ví dụ
+      - "new java.io.File java.lang.String"

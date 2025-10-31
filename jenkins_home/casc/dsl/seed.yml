@@ -16,6 +16,17 @@ jobs:
           // tuỳ chọn: chạy seed khi repo thay đổi (nếu có webhook)
           githubPush()
         }
+
+        properties {
+          authorizeProjectProperty {
+            strategy {
+              specificUsersAuthorizationStrategy {
+                userid('admin')   // user phải tồn tại & có quyền
+              }
+            }
+          }
+        }
+
         steps {
           jobDsl {
             // ĐIỂM CHÍNH: đọc toàn bộ .groovy trong thư mục casc/jobs
