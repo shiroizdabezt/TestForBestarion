@@ -1,4 +1,4 @@
-pipelineJob('hello-world') {
+pipelineJob('hello-world2') {
   description('A simple pipeline job created via Job DSL for testing')
 
   definition {
