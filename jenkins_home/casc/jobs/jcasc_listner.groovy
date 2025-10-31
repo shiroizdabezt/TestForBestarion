@@ -1,4 +1,4 @@
-pipelineJob('casc-pipeline-3') {
+pipelineJob('casc-pipeline-4') {
   description('JCasC managed pipeline for testing')
 
   definition {
