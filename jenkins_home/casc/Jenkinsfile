@@ -13,7 +13,7 @@ pipeline {
                 set -e
 
                 echo "🔐 Getting CSRF crumb..."
-                CRUMB_JSON=$(curl -s -u $JENKINS_USER:$JENKINS_PASSWORD -c /tmp/cookie.txt $JENKINS_URL/crumbIssuer/api/json)
+
                 CRUMB=$(curl -s -u $JENKINS_USER:$JENKINS_PASSWORD -c /tmp/cookie.txt \
                         $JENKINS_URL/crumbIssuer/api/json | jq -r '.crumb')
 
