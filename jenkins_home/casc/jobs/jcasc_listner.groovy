@@ -13,6 +13,7 @@ pipelineJob('casc-pipeline-4') {
           extensions {
             pathRestriction {
               includedRegions('^jenkins_home/casc/.*')
+              excludedRegions('')
             }
           }
         }
