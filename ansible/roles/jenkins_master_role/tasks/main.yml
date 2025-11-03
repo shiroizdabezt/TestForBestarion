@@ -12,9 +12,6 @@
 - ansible.builtin.include_tasks: deb_install.yml
   tags: [install]
 
-- ansible.builtin.include_tasks: systemd_override.yml
-  tags: [service]
-
 - ansible.builtin.include_tasks: envfile.yml
   tags: [env]
 
@@ -24,6 +21,7 @@
 - ansible.builtin.include_tasks: jcasc.yml
   tags: [jcasc]
 
-
-- ansible.builtin.include_tasks: service.yml
+- ansible.builtin.include_tasks: systemd_override.yml
   tags: [service]
+# - ansible.builtin.include_tasks: service.yml
+#   tags: [service]

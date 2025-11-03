@@ -12,4 +12,4 @@ jenkins_environment:
   JENKINS_AGENT_HOME_DIRECTORY: /home/jenkins
   JENKINS_MASTER_HOME_DIRECTORY: /var/lib/jenkins
   JENKINS_HOST_IP: "{{ host_ip }}"
-  GITHUB_BRANCH: "https://github.com/shiroizdabezt/TestForBestarion.git"
+  GITHUB_BRANCH: "https://github.com/minhhieu16/bestarion-jenkins.git"

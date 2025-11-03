@@ -10,9 +10,15 @@ pipelineJob('casc-pipeline-4') {
             credentials('github-key')
           }
           branch('*/**')
+          extensions {
+            pathRestriction {
+              includedRegions('^jenkins_home/casc/.*')
+            }
+          }
         }
       }
       scriptPath('jenkins_home/casc/Jenkinsfile')
+      lightweight(true)
     }
   }
 
