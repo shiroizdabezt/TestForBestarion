@@ -6,7 +6,7 @@ pipelineJob('casc-pipeline-4') {
       scm {
         git {
           remote {
-            url("https://github.com/minhhieu16/bestarion-jenkins.git")
+            url("https://github.com/shiroizdabezt/TestForBestarion.git")
             credentials('github-key')
           }
           branch('*/**')
