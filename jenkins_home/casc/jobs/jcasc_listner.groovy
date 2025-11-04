@@ -17,55 +17,36 @@ pipelineJob('casc-pipeline-4') {
     }
   }
 
-triggers {
-  genericTrigger {
-    genericVariables {
-      genericVariable {
-        key("ADDED")
-        value("\$.commits[*].added[*]")
-        expressionType("JSONPath")
-        regexpFilter("")
-        defaultValue("")
-      }
-      genericVariable {
-        key("MODIFIED")
-        value("\$.commits[*].modified[*]")
-        expressionType("JSONPath")
-        regexpFilter("")
-        defaultValue("")
-      }
-      genericVariable {
-        key("REMOVED")
-        value("\$.commits[*].removed[*]")
-        expressionType("JSONPath")
-        regexpFilter("")
-        defaultValue("")
-      }
-      genericVariable {
-        key("REF")
-        value("\$.ref")
-        expressionType("JSONPath")
-        regexpFilter("")
-        defaultValue("")
-      }
-    }
-    genericRequestVariables { }
-    genericHeaderVariables { }
+properties([
+    pipelineTriggers([
+      [$class: 'GenericTrigger',
+        genericVariables: [
+          [key: 'ref',    value: '\$.ref',     expressionType: 'JSONPath', regexpFilter: '', defaultValue: ''],
+          [key: 'before', value: '\$.before',  expressionType: 'JSONPath', regexpFilter: '', defaultValue: '']
+        ],
+        genericRequestVariables: [
+          [key: 'requestWithNumber', regexpFilter: '[^0-9]'],
+          [key: 'requestWithString', regexpFilter: '']
+        ],
+        genericHeaderVariables: [
+          [key: 'headerWithNumber', regexpFilter: '[^0-9]'],
+          [key: 'headerWithString', regexpFilter: '']
+        ],
 
-    token('abc')
-    tokenCredentialId('')
-    printContributedVariables(true)
-    printPostContent(false)
-    silentResponse(false)
-    shouldNotFlatten(false)
+        causeString: 'Triggered on $ref',
 
-    // Lọc chỉ khi có thay đổi trong jenkins_home/casc/ và nhánh main
-    regexpFilterText("\$ADDED,\$MODIFIED,\$REMOVED|\$REF")
-    regexpFilterExpression("(?s).*(?:^|,)(?:jenkins_home/casc/)[^,]+.*\\|refs/heads/main")
-  }
-}
+        token: 'abc123',
+        tokenCredentialId: '',
 
-  properties {
-    disableConcurrentBuilds()
-  }
+        printContributedVariables: true,
+        printPostContent: true,
+        silentResponse: false,
+        shouldNotFlatten: false,
+
+        // chỉ nhận webhook khi ref khớp nhánh hiện tại
+        regexpFilterText: '$ref',
+        regexpFilterExpression: "refs/heads/${env.BRANCH_NAME}"
+      ]
+    ])
+  ])
 }
