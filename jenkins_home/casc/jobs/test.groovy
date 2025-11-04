@@ -44,7 +44,7 @@ pipeline {
           value('$.object_kind')
         }
       }
-      token(repo.path)
+      token(abc123)
       printContributedVariables(true)
       printPostContent(true)
       silentResponse(false)
