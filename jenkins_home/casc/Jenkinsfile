@@ -13,8 +13,8 @@ pipeline {
                 set -e
 
                 echo "🔐 Getting CSRF crumb..."
-
-                CRUMB=$(curl -s -u $JENKINS_USER:$JENKINS_PASSWORD -c /tmp/cookie.txt \
+                rm $WORKSPACE/cookie.txt
+                CRUMB=$(curl -s -u $JENKINS_USER:$JENKINS_PASSWORD -c $WORKSPACE/cookie.txt \
                         $JENKINS_URL/crumbIssuer/api/json | jq -r '.crumb')
 
                 for file in $(find $WORKSPACE/jenkins_home/casc -type f -name '*.yaml'); do
