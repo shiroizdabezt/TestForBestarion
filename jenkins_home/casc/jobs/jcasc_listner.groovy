@@ -4,38 +4,36 @@ pipelineJob('jcasc-listener') {
   definition {
     cps {
       script('''\
-        pipeline {
-          agent any
-
-          triggers {
-            genericTrigger(
-              genericVariables: [
-                [key: 'ref', value: '\\$.ref']
-              ],
-              causeString: 'Triggered on $ref',
-              token: 'abc123',
-              tokenCredentialId: '',
-              printContributedVariables: true,
-              printPostContent: true,
-              silentResponse: false,
-              shouldNotFlatten: false,
-              regexpFilterText: '$ref',
-              regexpFilterExpression: ".*"
-            )
-          }
-
-          stages {
-            stage('Some step') {
-              steps {
-                sh 'echo "$ref"'
-              }
-            }
-          }
-        }
-        ''')
-      sandbox(true) // nếu bạn dùng Groovy sandbox
+pipeline {
+  agent any
+  stages {
+    stage('Some step') {
+      steps {
+        sh 'echo "$ref"'
+      }
+    }
+  }
+}
+''')
+      sandbox(true)
     }
   }
 
-  // (không bắt buộc) Có thể gán thêm properties/labels… nếu muốn
+  // ✅ đây là chỗ làm cho Generic Webhook Trigger được tick trong UI
+  properties {
+    pipelineTriggers([
+      [$class: 'GenericTrigger',
+        genericVariables: [[key: 'ref', value: '\\$.ref']],
+        causeString: 'Triggered on $ref',
+        token: 'abc123',
+        tokenCredentialId: '',
+        printContributedVariables: true,
+        printPostContent: true,
+        silentResponse: false,
+        shouldNotFlatten: false,
+        regexpFilterText: '$ref',
+        regexpFilterExpression: '.*'
+      ]
+    ])
+  }
 }
