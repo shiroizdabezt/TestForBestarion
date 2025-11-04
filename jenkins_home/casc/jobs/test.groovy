@@ -49,7 +49,7 @@ pipeline {
       printPostContent(true)
       silentResponse(false)
       regexpFilterText('$object_kind $ref')
-      regexpFilterExpression('^push refs/heads/' + repo.default_branch + '$')
+      regexpFilterExpression('^push refs/heads/')
       causeString('Triggered by $user_name who pushed $commit to $ref')
     }
   }
