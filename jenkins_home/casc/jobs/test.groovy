@@ -14,7 +14,7 @@ pipeline {
         sh 'echo "User: $user_name"'
         sh 'echo "Ref: $ref"'
         sh 'echo "Commit: $commit"'
-        sh 'echo "abcaawfawfawfafawfawfaw"'
+        sh 'echo "abcaawfawfawfafa"'
       }
     }
   }
