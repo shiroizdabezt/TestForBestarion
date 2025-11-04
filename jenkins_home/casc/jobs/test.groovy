@@ -24,33 +24,20 @@ pipeline {
   }
     triggers {
     genericTrigger {
-      //spec('')  // 👈 BẮT BUỘC có dòng này để trigger được bật trong UI
-
       genericVariables {
-        genericVariable {
-          key('user_name')
-          value('$.user_name')
-        }
-        genericVariable {
-          key('commit')
-          value('$.after')
-        }
-        genericVariable {
-          key('ref')
-          value('$.ref')
-        }
-        genericVariable {
-          key('object_kind')
-          value('$.object_kind')
-        }
+        genericVariable { key('ref');      value('$.ref') }
+        genericVariable { key('added');    value('$.commits..added[*]') }
+        genericVariable { key('modified'); value('$.commits..modified[*]') }
+        genericVariable { key('removed');  value('$.commits..removed[*]') }
       }
       token("abc123")
       printContributedVariables(true)
       printPostContent(true)
       silentResponse(false)
-      regexpFilterText('$object_kind $ref')
-      regexpFilterExpression('^push refs/heads/')
-      causeString('Triggered by $user_name who pushed $commit to $ref')
+      regexpFilterText('$ref $added $modified $removed')
+      regexpFilterExpression('^refs/heads/test\\b.*jenkins_home/casc/jobs/')
+
+      causeString('Triggered on $ref with changes under jenkins_home/casc/jobs/')
     }
   }
 }
