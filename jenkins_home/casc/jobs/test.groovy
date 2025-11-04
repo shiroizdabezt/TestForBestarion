@@ -36,7 +36,7 @@ pipeline {
       printPostContent(true)
       silentResponse(false)
       regexpFilterText('$ref $added $modified $removed')
-      regexpFilterExpression('^refs/heads/.*jenkins_home/casc/jobs/')
+      regexpFilterExpression('^refs/heads/main jenkins_home/casc/jobs/')
 
       causeString('Triggered on $ref with changes under jenkins_home/casc/jobs/')
     }
