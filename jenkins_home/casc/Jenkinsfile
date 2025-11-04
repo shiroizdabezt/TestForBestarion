@@ -14,7 +14,6 @@ pipeline {
 
                 echo "🔐 Getting CSRF crumb..."
                 rm -f $WORKSPACE/cookie.txt
-                cat $WORKSPACE/cookie.txt
                 CRUMB=$(curl -s -u $JENKINS_USER:$JENKINS_PASSWORD -c $WORKSPACE/cookie.txt \
                         $JENKINS_URL/crumbIssuer/api/json | jq -r '.crumb')
 
