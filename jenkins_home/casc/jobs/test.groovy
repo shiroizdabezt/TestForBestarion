@@ -44,7 +44,7 @@ pipeline {
           value('$.object_kind')
         }
       }
-      token(abc123)
+      token("abc123")
       printContributedVariables(true)
       printPostContent(true)
       silentResponse(false)
