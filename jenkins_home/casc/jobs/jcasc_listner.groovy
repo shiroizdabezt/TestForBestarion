@@ -3,7 +3,7 @@ pipelineJob('casc-pipeline-4') {
 
   definition {
     cps {
-      script("""
+      script('''
         node {
           properties([
             pipelineTriggers([
@@ -36,7 +36,7 @@ pipelineJob('casc-pipeline-4') {
 
           echo "✅ Webhook triggered for ref: \$ref"
         }
-      """.stripIndent())
+      '''.stripIndent())
       sandbox(true)
     }
   }
