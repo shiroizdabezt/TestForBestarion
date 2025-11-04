@@ -31,7 +31,7 @@ pipeline {
         genericVariable { key('modified'); value('$.commits..modified[*]') }
         genericVariable { key('removed');  value('$.commits..removed[*]') }
       }
-      //token("abc123")
+      token("abc123")
       tokenCredentialId('webhook')
       printContributedVariables(true)
       printPostContent(true)
