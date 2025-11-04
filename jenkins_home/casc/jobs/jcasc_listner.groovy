@@ -18,7 +18,7 @@ pipelineJob('casc-pipeline-4') {
   }
 
   triggers {
-    genericTrigger(
+    genericTrigger {
       genericVariables: [
         [key: 'ADDED',    value: '$.commits[*].added[*]',    expressionType: 'JSONPath'],
         [key: 'MODIFIED', value: '$.commits[*].modified[*]', expressionType: 'JSONPath'],
