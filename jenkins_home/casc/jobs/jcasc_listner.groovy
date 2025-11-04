@@ -45,7 +45,7 @@ properties([
 
         // chỉ nhận webhook khi ref khớp nhánh hiện tại
         regexpFilterText: '$ref',
-        regexpFilterExpression: "refs/heads/${env.BRANCH_NAME}"
+        regexpFilterExpression: ".*"
       ]
     ])
   ])
