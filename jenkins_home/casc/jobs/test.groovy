@@ -24,7 +24,7 @@ pipeline {
   }
     triggers {
     genericTrigger {
-      spec('')  // 👈 BẮT BUỘC có dòng này để trigger được bật trong UI
+      //spec('')  // 👈 BẮT BUỘC có dòng này để trigger được bật trong UI
 
       genericVariables {
         genericVariable {
