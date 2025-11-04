@@ -22,45 +22,35 @@ pipeline {
       sandbox(true)
     }
   }
+    triggers {
+    genericTrigger {
+      spec('')  // 👈 BẮT BUỘC có dòng này để trigger được bật trong UI
 
-  // ⚙️ Phần này là chìa khóa: chèn cấu hình trigger vào XML để nó "bật sẵn"
-  configure { node ->
-    def props = node / 'properties'
-    def triggersProp = props / 'org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty'
-    def triggers = triggersProp / 'triggers'
-    triggers / 'org.jenkinsci.plugins.gwt.GenericTrigger' {
-      causeString('Triggered by $user_name on $ref ($commit)')
-      token('abc123')
-      tokenCredentialId('')
+      genericVariables {
+        genericVariable {
+          key('user_name')
+          value('$.user_name')
+        }
+        genericVariable {
+          key('commit')
+          value('$.after')
+        }
+        genericVariable {
+          key('ref')
+          value('$.ref')
+        }
+        genericVariable {
+          key('object_kind')
+          value('$.object_kind')
+        }
+      }
+      token(repo.path)
       printContributedVariables(true)
       printPostContent(true)
       silentResponse(false)
-      shouldNotFlatten(false)
-      regexpFilterText('$ref')
-      regexpFilterExpression('.*')
-      genericVariables {
-        'org.jenkinsci.plugins.gwt.GenericVariable' {
-          key('user_name')
-          value('$.user_name')
-          expressionType('JSONPath')
-          defaultValue('')
-          regexpFilter('')
-        }
-        'org.jenkinsci.plugins.gwt.GenericVariable' {
-          key('ref')
-          value('$.ref')
-          expressionType('JSONPath')
-          defaultValue('')
-          regexpFilter('')
-        }
-        'org.jenkinsci.plugins.gwt.GenericVariable' {
-          key('commit')
-          value('$.after')
-          expressionType('JSONPath')
-          defaultValue('')
-          regexpFilter('')
-        }
-      }
+      regexpFilterText('$object_kind $ref')
+      regexpFilterExpression('^push refs/heads/' + repo.default_branch + '$')
+      causeString('Triggered by $user_name who pushed $commit to $ref')
     }
   }
 }
