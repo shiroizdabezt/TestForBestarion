@@ -1,0 +1,38 @@
+version: '3.7'
+services:
+  solr_vim:
+    image: solr_vim_meperia_1:6.6
+    container_name: solr_vim
+    volumes:
+      - ./data_vim:/opt/solr/server/solr
+    ports:
+      - "22181:8983"
+    environment:
+      - ZK_HOST=zoo_vim:2181
+      - SOLR_JAVA_MEM=-Xms4g -Xmx16g
+    networks:
+      - solr_vim
+    depends_on:
+      - zoo_vim
+  zoo_vim:
+    image: zookeeper:3.4.11
+    restart: always
+    hostname: zoo_vim
+    ports:
+      - 28981:2181
+    volumes:
+      - zoo_vim_data:/data
+      - zoo_vim_datalog:/datalog
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zoo_vim:2888:3888
+    networks: 
+      - solr_vim
+
+networks:
+  solr_vim:
+
+volumes:
+  zoo_vim_data:
+  zoo_vim_datalog:
+

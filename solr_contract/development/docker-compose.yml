@@ -1,0 +1,37 @@
+version: '3.7'
+services:
+  solr_contract:
+    image: 743366978930.dkr.ecr.us-east-1.amazonaws.com/dev/solr_contract:7.5.0
+    container_name: solr_contract
+    volumes:
+      - ./data_contract:/opt/solr/server/solr
+    ports:
+      - "8983:8983"
+    environment:
+      - ZK_HOST=zoo_contract:2181
+      - SOLR_JAVA_MEM=-Xms4g -Xmx16g
+    networks:
+      - solr_contract
+    depends_on:
+      - zoo_contract
+  zoo_contract:
+    image: zookeeper:3.4.11
+    restart: always
+    hostname: zoo_contract
+    ports:
+      - 2181:2181
+    volumes:
+      - zoo_contract_data:/data
+      - zoo_contract_datalog:/datalog
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zoo_contract:2888:3888
+    networks:
+      - solr_contract
+
+networks:
+  solr_contract:
+
+volumes:
+  zoo_contract_data:
+  zoo_contract_datalog:

@@ -1,0 +1,20 @@
+# Load DSL and set up stages
+require "capistrano/setup"
+
+# Include default deployment tasks
+require "capistrano/deploy"
+
+# Include rvm, rails and passenger modules
+require "capistrano/rvm"
+
+require "capistrano/bundler"
+require "capistrano/rails/assets"     # Precompile assets (CSS/JS)
+require "capistrano/rails/migrations" # Chạy db:migrate
+require "capistrano/passenger"
+require "capistrano/scm/git"
+require "whenever/capistrano"
+
+install_plugin Capistrano::SCM::Git
+
+# Load custom tasks from `lib/capistrano/tasks` if you have any defined
+Dir.glob("lib/capistrano/tasks/*.rake").each { |r| import r }
