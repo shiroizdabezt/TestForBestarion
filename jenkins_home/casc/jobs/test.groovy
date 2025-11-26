@@ -1,4 +1,4 @@
-pipelineJob('Performance/Max.Deploy.Performance.LinhLX') {
+pipelineJob('Max.Deploy.Performance.LinhLX') {
   description('Pipeline deploy performance services')
 
   definition {
