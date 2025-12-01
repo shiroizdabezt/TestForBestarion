@@ -10,7 +10,7 @@ jobs:
               url('https://github.com/shiroizdabezt/TestForBestarion')
               credentials('github-key')
             }
-            branch('main')
+            branch('*/**')
           }
         }
 
