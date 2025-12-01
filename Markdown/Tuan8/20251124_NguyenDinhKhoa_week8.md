@@ -22,6 +22,12 @@
 - Tìm hiểu về Solr
 
 #### 📘 Ghi chú / Notes
+
+
+#### ⚙️ Khó khăn / Issues
+
+
+#### 📚 Học được / Learnings
 **Phân tích logic script build daily (Mã giả):**
 
 1. **Lọc lỗi (Log Filtering):**
@@ -61,18 +67,14 @@
        - Tạm dừng một khoảng thời gian ngắn trước khi kiểm tra lại.
 
 
-#### ⚙️ Khó khăn / Issues
-
-
-#### 📚 Học được / Learnings
-
-
 ---
 
 ### 📅 Thứ 3 — 25/11/2025
 
 #### ✅ Nhiệm vụ / Tasks
-
+- Thực hiện chạy Solr
+- Thực hiện chạy Zookeeper
+- Kết nối bộ code mssss vào Solr Vim và Solr Contract
 
 #### 📘 Ghi chú / Notes
 
@@ -81,19 +83,23 @@
 
 
 #### 📚 Học được / Learnings
-
-
+- [Solr](Solr/Solr.md#solr) 
+- [Quy trình hoạt động](Solr/Solr.md#quy-trình-hoạt-động)
+- [So sánh Solr với DB truyền thống](Solr/Solr.md#so-sánh-solr-với-tìm-kiếm-database-truyền-thống)
+- [Các loại Solr](Solr/Solr.md#các-loại-solr)
+- [Zookeeper](Solr/Solr.md#zookeeper)
+- [Cách cài đặt Solr](Solr/Solr.md#cách-cài-đặt-solr)
 ---
 
 ### 📅 Thứ 4 — 26/11/2025
 
 #### ✅ Nhiệm vụ / Tasks
-
+- Đọc bộ code phần build solr hide và show
 
 #### 📘 Ghi chú / Notes
 
-
 #### ⚙️ Khó khăn / Issues
+- Vẫn chưa thể chạy được phần build đó
 
 
 #### 📚 Học được / Learnings
@@ -102,17 +108,7 @@
 ---
 
 ### 📅 Thứ 5 — 27/11/2025
-
-#### ✅ Nhiệm vụ / Tasks
-
-
-#### 📘 Ghi chú / Notes
-
-
-#### ⚙️ Khó khăn / Issues
-
-
-#### 📚 Học được / Learnings
+OFF
 
 
 ---
@@ -120,12 +116,13 @@
 ### 📅 Thứ 6 — 28/11/2025
 
 #### ✅ Nhiệm vụ / Tasks
-
+- Tiếp tục đọc và chạy bộ code phần build solr hide và show
 
 #### 📘 Ghi chú / Notes
 
 
 #### ⚙️ Khó khăn / Issues
-
+- Chưa thể hiện VIM lên giao diện web
 
 #### 📚 Học được / Learnings
+- Đã chạy được phần build solr hide và show. [Cách sửa](./images/solr.bash)

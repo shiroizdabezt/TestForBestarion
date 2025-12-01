@@ -25,3 +25,130 @@
 ## Các loại Solr
 - **Standalone Solr:** Chạy trên một máy chủ duy nhất, phù hợp cho các ứng dụng nhỏ hoặc thử nghiệm.
 - **SolrCloud:** Một cấu hình phân tán của Solr, cho phép mở rộng quy mô và cung cấp khả năng chịu lỗi cao hơn bằng cách sử dụng nhiều nút (nodes) trong một cụm (cluster).
+
+# Zookeeper
+- Zookeeper là một dịch vụ quản lý cấu hình và đồng bộ hóa dữ liệu trong SolrCloud.
+- Zookeeper giúp các nút trong cụm SolrCloud đồng bộ hóa với nhau và đảm bảo tính nhất quán trong quá trình tìm kiếm và lập chỉ mục.
+
+## Cách cài đặt Solr
+### Cài đặt Zookeeper
+- Cách 1: Cài đặt Zookeeper theo hướng dẫn chính thức của Apache Zookeeper.
+- Cách 2: Cài đặt Zookeeper thông qua Docker.
+
+### Cài đặt Solr
+- Cách 1: Cài đặt Solr theo hướng dẫn chính thức của Apache Solr.
+- Cách 2: Cài đặt Solr thông qua Docker.
+
+```yaml
+version: '3.8'
+
+services:
+  # --- Service Database (Giữ nguyên) ---
+  khoa_postgre:
+    image: postgres:14
+    container_name: khoa_postgre
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: main_production47
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - pg_network
+
+  # --- Service PgBouncer (Giữ nguyên) ---
+  khoa_pgbouncer:
+    image: edoburu/pgbouncer:latest
+    container_name: khoa_pgbouncer
+    restart: always
+    depends_on:
+      - khoa_postgre
+    volumes:
+      - ./pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini
+      - ./pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt
+    ports:
+      - "7432:7432"
+    networks:
+      - pg_network
+
+  # ======================================================
+  # CỤM 1: SOLR 6.6.6 + ZOOKEEPER RIÊNG
+  # ======================================================
+  
+  # Zookeeper cho Solr 6
+  zookeeper1:
+    image: zookeeper:3.4.14
+    container_name: khoa_zookeeper_1
+    restart: always
+    ports:
+      - "22181:2181" # Port Host: 22181
+    environment:
+      ZOO_MY_ID: 1
+    networks:
+      - pg_network
+
+  # Solr 6.6.6
+  solr6:
+    image: solr:6.6.6
+    container_name: khoa_solr6
+    restart: always
+    ports:
+      - "28981:8983" # Port Host: 28981
+    environment:
+      - ZK_HOST=khoa_zookeeper_1:2181 # Trỏ đích danh vào container khoa_zookeeper_1
+    depends_on:
+      - zookeeper1
+    networks:
+      - pg_network
+    volumes:
+      - solr6_data:/var/solr
+
+  # ======================================================
+  # CỤM 2: SOLR 7.7.2 + ZOOKEEPER RIÊNG
+  # ======================================================
+
+  # Zookeeper cho Solr 7
+  zookeeper2:
+    image: zookeeper:3.4.14
+    container_name: khoa_zookeeper_2
+    restart: always
+    ports:
+      - "22182:2181" # Port Host: 22182
+    environment:
+      ZOO_MY_ID: 1
+    networks:
+      - pg_network
+
+  # Solr 7.7.2
+  solr7:
+    image: solr:7.7.2
+    container_name: khoa_solr7
+    restart: always
+    ports:
+      - "28983:8983" # Port Host: 28983
+    environment:
+      - ZK_HOST=khoa_zookeeper_2:2181 # Trỏ đích danh vào container khoa_zookeeper_2
+    depends_on:
+      - zookeeper2
+    networks:
+      - pg_network
+    volumes:
+      - solr7_data:/var/solr
+      #- ./my-cloud-scripts:/opt/solr/server/scripts/cloud-scripts
+
+networks:
+  pg_network:
+    driver: bridge
+
+volumes:
+  solr6_data:
+  solr7_data:
+```
+
+/home/khoa/msss/app/controllers/new_organization_vims_controller.rb 
+/home/khoa/msss/app/views/new_organization_vims/index.html.erb 
+/home/khoa/msss/app/controllers/org/organization_vims_controller.rb 
+/home/khoa/msss/app/models/services/org/vim/main_service.rb 
+/home/khoa/msss/public/javascripts/meperia/vim/vim-item-panel.js
