@@ -3,6 +3,7 @@ pipeline {
     environment {
         JENKINS_CASC_DIR = "${env.CASC_JENKINS_CONFIG}"
         SCRIPT = "${env.JENKINS_MASTER_HOME_DIRECTORY}/jenkins-cli.jar"
+        IP ="${env.JENKINS_MASTER_IP}"
     }
     stages {
         stage('Validate JCasC syntax') {
@@ -14,7 +15,7 @@ pipeline {
                 for file in $(find $WORKSPACE/jenkins_home/casc -type f -name '*.yaml'); do
                     echo -e "🔍 Checking: $file"
                     cat $file | java -jar "$SCRIPT" \
-                        -s http://localhost:8080 \
+                        -s http://$IP:8080 \
                         -auth $JENKINS_USER:$JENKINS_PASSWORD \
                         check-configuration 2> /tmp/err.txt
                     if [ $? -ne 0 ]; then
@@ -51,7 +52,7 @@ pipeline {
 
                     echo "Apply new JCasC Configuration"
                         java -jar "$SCRIPT" \
-                        -s http://localhost:8080 \
+                        -s http://$IP:8080 \
                         -auth $JENKINS_USER:$JENKINS_PASSWORD \
                         reload-jcasc-configuration
 
