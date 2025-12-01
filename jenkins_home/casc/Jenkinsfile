@@ -3,7 +3,7 @@ pipeline {
     environment {
         JENKINS_CASC_DIR = "${env.CASC_JENKINS_CONFIG}"
         SCRIPT = "${env.JENKINS_MASTER_HOME_DIRECTORY}/jenkins-cli.jar"
-        IP ="${env.JENKINS_MASTER_IP}"
+        IP ="${env.JENKINS_HOST_IP}"
     }
     stages {
         stage('Validate JCasC syntax') {
