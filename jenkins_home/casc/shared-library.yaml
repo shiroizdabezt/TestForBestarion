@@ -7,10 +7,7 @@ unclassified:
           legacySCM:
             scm:
               git:
-                remote: "https://github.com/shiroizdabezt/TestForBestarion"
+                userRemoteConfigs:
+                  - url: "https://github.com/shiroizdabezt/TestForBestarion"
                 branches:
                   - name: "*/main"
-                extensions:
-                  - sparseCheckoutPaths:
-                      sparseCheckoutPaths:
-                        - path: "vars/"
