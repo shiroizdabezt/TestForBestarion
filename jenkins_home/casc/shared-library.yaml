@@ -1,0 +1,15 @@
+unclassified:
+  globalLibraries:
+    libraries:
+      - name: "my-shared-library"
+        defaultVersion: "main"
+        retriever:
+          modernSCM:
+            scm:
+              git:
+                remote: "https://github.com/shiroizdabezt/TestForBestarion"
+                traits:
+                  - gitBranchDiscovery: {}
+                  - sparseCheckoutPaths:
+                      sparseCheckoutPaths:
+                        - path: "vars/"
