@@ -9,6 +9,10 @@ unclassified:
               git:
                 userRemoteConfigs:
                   - url: "https://github.com/shiroizdabezt/TestForBestarion"
-                    credentialsId: "github-key"
+                    credentialsId: "github-key" 
                 branches:
                   - name: "*/main"
+                extensions:
+                  - sparseCheckoutPaths:
+                      sparseCheckoutPaths:
+                        - path: "vars/"
