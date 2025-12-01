@@ -9,5 +9,6 @@ unclassified:
               git:
                 userRemoteConfigs:
                   - url: "https://github.com/shiroizdabezt/TestForBestarion"
+                    credentialsId: "github-key"
                 branches:
                   - name: "*/main"
