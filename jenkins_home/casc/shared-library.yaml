@@ -4,12 +4,13 @@ unclassified:
       - name: "my-shared-library"
         defaultVersion: "main"
         retriever:
-          modernSCM:
+          legacySCM:
             scm:
               git:
                 remote: "https://github.com/shiroizdabezt/TestForBestarion"
-                traits:
-                  - gitBranchDiscovery: {}
+                branches:
+                  - name: "*/main"
+                extensions:
                   - sparseCheckoutPaths:
                       sparseCheckoutPaths:
                         - path: "vars/"
