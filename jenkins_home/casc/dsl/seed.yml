@@ -16,7 +16,7 @@ jobs:
 
         steps {
           dsl {
-            external('jenkins_home/casc/jobs/dsl/**/*.groovy')
+            external('jenkins_home/casc/jobs/**/*.groovy')
             removeAction('DELETE')
           }
         }
