@@ -1,21 +1,23 @@
-pipelineJob('jcasc-listener') {
-  description('Pipeline lắng nghe Generic Webhook (tạo bằng Job DSL)')
+pipelineJob('casc-pipeline-5') {
+  description('JCasC managed pipeline for testin')
 
   definition {
-    cps {
-      script('''\
-pipeline {
-  agent any
-  stages {
-    stage('Some step') {
-      steps {
-        sh 'echo "$ref"'
+    cpsScm {
+      scm {
+        git {
+          remote {
+            url("https://github.com/shiroizdabezt/TestForBestarion.git")
+            credentials('github-key')
+          }
+          branch('*/**')
+        }
       }
+      scriptPath('jenkins_home/casc/Jenkinsfile')
+      lightweight(true)
     }
   }
-}
-''')
-      sandbox(true)
-    }
+
+  properties {
+    disableConcurrentBuilds()
   }
 }
