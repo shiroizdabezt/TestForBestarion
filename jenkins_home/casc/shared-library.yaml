@@ -15,4 +15,4 @@ unclassified:
                 extensions:
                   - sparseCheckoutPaths:
                       sparseCheckoutPaths:
-                        - path: "library/"
+                        - path: "vars/"
