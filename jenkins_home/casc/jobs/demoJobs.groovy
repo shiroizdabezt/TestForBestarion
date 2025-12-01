@@ -18,6 +18,7 @@ pipelineJob('job-A') {
                     }
                 }
             '''.stripIndent())
+            sandbox(true)
         }
     }
 }
@@ -42,6 +43,7 @@ pipelineJob('job-B') {
                     }
                 }
             '''.stripIndent())
+            sandbox(true)
         }
     }
 }
@@ -66,6 +68,7 @@ pipelineJob('job-C') {
                     }
                 }
             '''.stripIndent())
+            sandbox(true)
         }
     }
 }
