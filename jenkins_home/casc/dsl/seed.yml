@@ -1,48 +1,31 @@
 jobs:
-  - script: >
-      job('seed-casc') {
-        description('Seed job: process all Job DSL groovy under casc/jobs')
+  - script: |
+      freeStyleJob('seed-casc') {
+        description('Seed job quản lý các Jenkins jobs bằng Job DSL')
+        label('built-in')
+
         scm {
           git {
             remote {
-              url("${GITHUB_BRANCH}")
-              // nếu private:
+              url('https://github.com/shiroizdabezt/TestForBestarion')
               credentials('github-key')
             }
-            branch('*/**')
-          }
-        }
-        triggers {
-          // tuỳ chọn: chạy seed khi repo thay đổi (nếu có webhook)
-          githubPush()
-        }
-
-        properties {
-          authorizeProjectProperty {
-            strategy {
-              specificUsersAuthorizationStrategy {
-                userid('admin')   // user phải tồn tại & có quyền
-              }
-            }
+            branch('main')
           }
         }
 
         steps {
-          jobDsl {
-            // ĐIỂM CHÍNH: đọc toàn bộ .groovy trong thư mục casc/jobs
-            targets('jenkins_home/casc/jobs/**/*.groovy')
-
-            // Housekeeping/reconcile:
-            removedJobAction('DELETE')
-            removedViewAction('DELETE')
-            removedConfigFilesAction('DELETE')
-
-            // An toàn & độ bền:
-            ignoreMissingFiles(false)
-            failOnMissingPlugin(true)
-            lookupStrategy('JENKINS_ROOT')
-            // Nếu script dùng lệnh “nhạy cảm”, bật sandbox và phê duyệt:
-            forceSandbox(true)
+          dsl {
+            external('jenkins_home/casc/jobs/dsl/**/*.groovy')
+            removeAction('DELETE')
           }
+        }
+
+        logRotator {
+          numToKeep(10)
+        }
+
+        properties {
+          disableConcurrentBuilds()
         }
       }
