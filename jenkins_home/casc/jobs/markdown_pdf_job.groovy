@@ -34,14 +34,14 @@ pipelineJob('markdown-to-pdf-conversion') {
                         
                         stage('Convert to PDF') {
                             agent {
-                                docker { 
+               z                 docker { 
                                     image 'pandoc/core' 
                                     args '--entrypoint='
                                 }
                             }
                             steps {
                                 script {    
-                                    sh 'find . -name "*.md" | while read file; do echo "Converting ${file}..."; pandoc "${file}" -o "${file%.md }.pdf"; done'
+                                    sh 'find . -name "*.md" | while read file; do echo "Converting ${file}..."; pandoc "${file}" -o "${file%.md}.pdf"; done'
                                 }
                             }
                         }
