@@ -37,10 +37,12 @@ pipelineJob('markdown-to-pdf-conversion') {
                                 docker { 
                                     image 'pandoc/core' 
                                     args '--entrypoint='
+                                    reuseNode true
                                 }
                             }
                             steps {
                                 script {    
+                                    sh 'ls -la' // Debug: Check files
                                     sh 'find . -name "*.md" | while read file; do echo "Converting ${file}..."; pandoc "${file}" -o "${file%.md}.pdf"; done'
                                 }
                             }
