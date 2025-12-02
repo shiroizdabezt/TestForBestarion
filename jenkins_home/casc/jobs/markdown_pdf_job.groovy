@@ -34,7 +34,7 @@ pipelineJob('markdown-to-pdf-conversion') {
                         
                         stage('Convert to PDF') {
                             agent {
-               z                 docker { 
+                                docker { 
                                     image 'pandoc/core' 
                                     args '--entrypoint='
                                 }
