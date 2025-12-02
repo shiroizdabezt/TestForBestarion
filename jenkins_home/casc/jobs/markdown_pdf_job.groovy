@@ -41,12 +41,7 @@ pipelineJob('markdown-to-pdf-conversion') {
                             }
                             steps {
                                 script {    
-                                    sh """
-                                        find . -name "*.md" | while read file; do
-                                            echo "Converting \${file}..."
-                                            pandoc "\${file}" -o "\${file%.md}.pdf"
-                                        done
-                                    """
+                                    sh 'find . -name "*.md" | while read file; do echo "Converting ${file}..."; pandoc "${file}" -o "${file%.md }.pdf"; done'
                                 }
                             }
                         }
