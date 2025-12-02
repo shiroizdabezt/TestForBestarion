@@ -78,11 +78,5 @@ pipeline {
                 }
             }
         }
-        
-        stage('Archive Artifacts') {
-            steps {
-                archiveArtifacts artifacts: '**/*.pdf', allowEmptyArchive: true
-            }
-        }
     }
 }
