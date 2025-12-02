@@ -43,15 +43,20 @@ pipelineJob('markdown-to-pdf-conversion') {
                             steps {
                                 script {
                                     sh """
-                                        apk add --no-cache ttf-dejavu || true
-                                        
+                                        apk add --no-cache ttf-dejavu sed || true
+            
                                         find . -name "*.md" | while read file; do 
-                                            echo "Converting \\${file}..."
+                                            echo "Processing \${file}..."
+                                            sed 's/\\x1b//g; s/\\x1b\\[[0-9;]*[a-zA-Z]//g' "\${file}" > "\${file}.clean"
                                             
-                                            pandoc "\\${file}" \
-                                            -o "\\${file%.md}.pdf" \
+                                            echo "Converting..."
+                                            pandoc "\${file}.clean" \
+                                            -o "\${file%.md}.pdf" \
                                             --pdf-engine=xelatex \
-                                            -V mainfont="DejaVu Sans"
+                                            -V mainfont="DejaVu Sans" \
+                                            -V geometry:margin=2cm
+                                            
+                                            rm "\${file}.clean"
                                         done
                                     """
                                 }
