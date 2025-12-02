@@ -22,8 +22,6 @@ pipelineJob('markdown-to-pdf-conversion') {
                             steps {
                                 script {
                                     def msg = sh(returnStdout: true, script: 'git log -1 --pretty=%s').trim()
-                                    echo "Commit message: ${msg}"
-                                    
                                     if (!(msg ==~ /^doc(\\(.*\\))?: .*/)) {
                                         currentBuild.result = 'ABORTED'
                                         error("Skipping build: Commit message does not match pattern.")
@@ -41,15 +39,15 @@ pipelineJob('markdown-to-pdf-conversion') {
                                 }
                             }
                             steps {
-                                script {
+                                script {    
                                     sh """
                                         apk add --no-cache ttf-dejavu sed || true
-            
+                                        
+                                        ESC=\$(printf '\\033')
+
                                         find . -name "*.md" | while read file; do 
-                                            echo "Processing \${file}..."
-                                            sed 's/\\\\x1b//g; s/\\\\x1b\\\\[[0-9;]*[a-zA-Z]//g' "\\${file}" > "\\${file}.clean"
+                                            sed "s/\${ESC}//g; s/\${ESC}\\[[0-9;]*[a-zA-Z]//g" "\\${file}" > "\\${file}.clean"
                                             
-                                            echo "Converting..."
                                             pandoc "\\${file}.clean" \
                                             -o "\\${file%.md}.pdf" \
                                             --pdf-engine=xelatex \
