@@ -48,6 +48,26 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'github-key', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
                     script {
+                        def changedFilesBuffer = []
+                        if (params.MODE == 'CHANGED_ONLY') {
+                            def changeLogSets = currentBuild.changeSets
+                            for (int i = 0; i < changeLogSets.size(); i++) {
+                                def entries = changeLogSets[i].items
+                                for (int j = 0; j < entries.length; j++) {
+                                    def entry = entries[j]
+                                    def files = entry.affectedFiles
+                                    for (int k = 0; k < files.size(); k++) {
+                                        def file = files[k]
+                                        if (file.path.startsWith("${params.TARGET_FOLDER}/") && file.path.endsWith(".md")) {
+                                            changedFilesBuffer.add(file.path)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        env.GROOVY_DETECTED_FILES = changedFilesBuffer.join(" ")
+
                         sh """
                             ORIG_UID=\$(stat -c "%u" .)
                             ORIG_GID=\$(stat -c "%g" .)
@@ -61,8 +81,6 @@ pipeline {
                             git config --global user.email "jenkins-bot@localhost"
                             git config --global user.name "Jenkins PDF Bot"
                             git remote set-url origin https://\${GIT_USER}:\${GIT_PASS}@github.com/shiroizdabezt/TestForBestarion.git
-                            
-                            git fetch origin main
 
                             ESC=\$(printf '\\033')
                             
@@ -73,9 +91,13 @@ pipeline {
                                 FILES_LIST=\$(find "\$TARGET" -name "*.md")
                             else
                                 echo "Mode: CHANGED_ONLY."
-                                
-                                echo "Comparing HEAD with origin/main to find changed files..."
-                                FILES_LIST=\$(git diff --name-only --diff-filter=AM origin/main...HEAD | grep "^\$TARGET/.*\\.md\$" || true)
+                                if [ -n "\$GROOVY_DETECTED_FILES" ]; then
+                                    echo "Groovy detected changes from multiple commits."
+                                    FILES_LIST="\$GROOVY_DETECTED_FILES"
+                                else
+                                    echo "Groovy found no changes (First build or Manual Rebuild?). Falling back to HEAD~1 check."
+                                    FILES_LIST=\$(git diff --name-only --diff-filter=AM HEAD~1 HEAD | grep "^\$TARGET/.*\\.md\$" || true)
+                                fi
                             fi
 
                             if [ -z "\${FILES_LIST}" ]; then
@@ -84,7 +106,7 @@ pipeline {
                                 echo "Files to process:"
                                 echo "\${FILES_LIST}"
                                 
-                                echo "\${FILES_LIST}" | while read filepath; do
+                                for filepath in \${FILES_LIST}; do
                                     if [ -f "\${filepath}" ]; then
                                         dir=\$(dirname "\${filepath}")
                                         filename=\$(basename "\${filepath}")
