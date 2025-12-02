@@ -42,13 +42,13 @@ pipelineJob('markdown-to-pdf-conversion') {
                             }
                             steps {
                                 script {    
-                                    sh """
+                                    sh '''
                                         apk add --no-cache ttf-dejavu || true
                                         find . -name "*.md" | while read file; do 
                                             echo "Converting ${file}..."
                                             pandoc "${file}" -o "${file%.md}.pdf" --pdf-engine=xelatex -V mainfont="DejaVu Sans"
                                         done
-                                    """
+                                    '''
                                 }
                             }
                         }
