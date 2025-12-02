@@ -160,22 +160,7 @@ Danh sách các Pseudo-Variables chính trong ruby
 |`__LINE__`|Số dòng hiện tại trong file|
 |`__ENCODING__`|Kiểu mã hóa của file nguồn|
 
-### Backslash
-|Backslash|Mô tả|Ví dụ| Ghi chú|
-|:--------------:|--------|-------|
-|`\n`| Newline - xuống dòng (0x0a)|`"abc\ndef"`-> <br>`abc` <br>`def`
-|`\r`| Carriage Return - trở về đầu dòng (0x0d)|`"Hello\rHi"` -> `Hi` ghi đè "Hello" bằng "Hi" trên cùng dòng trong terminal cũ|
-|`\f`| Form feed - chuyển trang (0x0C) | `"Hello\fWorld"`|
-|`\b`| Backspace - lùi lại 1 ký tự (0x08) | `"abc\bz"` -> `abz`|
-|`\a`| Bell/Alert - phát tiếng beep (0x07) | `print "\a" -> kêu beep|
-|`\e`| Escape - ký tự escape (0x1B) | `puts "\e[31mRed Text\e[0m"` -> in ra chữ đỏ|
 
-|`\nnn`| Octal notation - Ký tự theo mã bát phân (Octal) | `"\101"` -> `"A"`|
-|`\xnn`| Hexadecimal notation – Ký tự theo mã hex (Hexadecimal)| `"\x41"` -> `"A"`|
-|`\cx` hoặc `\C-x`| Control-x - tổ hợp phím điều khiển (Control) | `"\C-a"` -> Ctrl + A|
-|`\M-x`| Meta-x - thêm bit 8 (c|0x80) | `"\M-a"` -> ký tự có mã ASCII + 12*|
-|`\M-\C-x`| Meta-Control-x – Cả Meta và Control | Dùng cho tổ hợp Meta + Ctrl |
-|`\x`| Ký tự x (nếu \ không theo cú pháp đặc biệt) | `"Hello\z"` → in `"Helloz"` (vì \z không có nghĩa đặc biệt)|
 
 ### Arrays
 - Array là một tập hợp có thứ tự của các giá trị (phần tử)
