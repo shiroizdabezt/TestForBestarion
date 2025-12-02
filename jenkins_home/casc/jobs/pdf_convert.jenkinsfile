@@ -29,47 +29,43 @@ pipeline {
                 }
             }
             steps {
-                // Inject Credentials để có quyền Push
                 withCredentials([usernamePassword(credentialsId: 'github-key', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
                     script {
                         sh """
-                            # Cài thêm git để thực hiện lệnh commit/push
-                            apk add --no-cache ttf-dejavu sed git || true
-                            
-                            # Cấu hình Git Identity cho Bot
+                            apk add --no-cache ttf-dejavu sed git librsvg || true
                             git config --global --add safe.directory "*"
                             git config --global user.email "jenkins-bot@localhost"
                             git config --global user.name "Jenkins PDF Bot"
-                            
-                            # Cài đặt URL remote có chứa Token để Push được qua HTTPS
                             git remote set-url origin https://\${GIT_USER}:\${GIT_PASS}@github.com/shiroizdabezt/TestForBestarion.git
 
                             ESC=\$(printf '\\033')
 
-                            # Bắt đầu vòng lặp Convert
-                            find . -name "*.md" | while read file; do 
-                                echo "Processing \${file}..."
+                            find . -name "*.md" | while read filepath; do 
+                                dir=\$(dirname "\${filepath}")
+                                filename=\$(basename "\${filepath}")
                                 
-                                LC_ALL=C sed "s/\${ESC}//g; s/\${ESC}\\[[0-9;]*[a-zA-Z]//g" "\${file}" > "\${file}.clean"
+                                echo "Processing \${filename} in \${dir}..."
                                 
-                                pandoc "\${file}.clean" \
-                                -f markdown \
-                                -o "\${file%.md}.pdf" \
-                                --pdf-engine=xelatex \
-                                -V mainfont="DejaVu Sans" \
-                                -V geometry:margin=2cm \
-                                -V header-includes='\\providecommand{\\e}{}\\providecommand{\\s}{\\textbackslash s}'
-                                
-                                rm "\${file}.clean"
+                                (
+                                    cd "\${dir}" || exit
+                                    
+                                    LC_ALL=C sed "s/\${ESC}//g; s/\${ESC}\\[[0-9;]*[a-zA-Z]//g" "\${filename}" > "\${filename}.clean"
+                                    
+                                    pandoc "\${filename}.clean" \
+                                    -f markdown \
+                                    -o "\${filename%.md}.pdf" \
+                                    --pdf-engine=xelatex \
+                                    -V mainfont="DejaVu Sans" \
+                                    -V geometry:margin=2cm \
+                                    -V header-includes='\\providecommand{\\e}{}\\providecommand{\\s}{\\textbackslash s}'
+                                    
+                                    rm "\${filename}.clean"
+                                )
                             done
                             
-                            # LOGIC PUSH NGƯỢC LÊN GITHUB
                             echo "Checking for changes..."
-                            
-                            # Add tất cả file PDF
                             find . -name "*.pdf" | xargs git add
                             
-                            # Kiểm tra xem có gì thay đổi không
                             if ! git diff-index --quiet HEAD; then
                                 echo "Changes detected. Committing and Pushing..."
                                 git commit -m "chore: auto-generated PDFs"
