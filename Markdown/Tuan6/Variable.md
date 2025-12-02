@@ -169,7 +169,7 @@ Danh sách các Pseudo-Variables chính trong ruby
 |`\b`| Backspace - lùi lại 1 ký tự (0x08) | `"abc\bz"` -> `abz`|
 |`\a`| Bell/Alert - phát tiếng beep (0x07) | `print "\a" -> kêu beep|
 |`\e`| Escape - ký tự escape (0x1B) | `puts "\e[31mRed Text\e[0m"` -> in ra chữ đỏ|
-|`\s`| Space - dấu cách (0x20) | `"Hello\sWorld"` -> `Hello World`|
+
 |`\nnn`| Octal notation - Ký tự theo mã bát phân (Octal) | `"\101"` -> `"A"`|
 |`\xnn`| Hexadecimal notation – Ký tự theo mã hex (Hexadecimal)| `"\x41"` -> `"A"`|
 |`\cx` hoặc `\C-x`| Control-x - tổ hợp phím điều khiển (Control) | `"\C-a"` -> Ctrl + A|
