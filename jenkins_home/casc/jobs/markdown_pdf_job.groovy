@@ -36,14 +36,19 @@ pipelineJob('markdown-to-pdf-conversion') {
                             agent {
                                 docker { 
                                     image 'pandoc/latex' 
-                                    args '--entrypoint='
+                                    args '-u root --entrypoint='
                                     reuseNode true
                                 }
                             }
                             steps {
                                 script {    
-                                    sh 'ls -la' // Debug: Check files
-                                    sh 'find . -name "*.md" | while read file; do echo "Converting ${file}..."; pandoc "${file}" -o "${file%.md}.pdf"; done'
+                                    sh """
+                                        apk add --no-cache ttf-dejavu || true
+                                        find . -name "*.md" | while read file; do 
+                                            echo "Converting ${file}..."
+                                            pandoc "${file}" -o "${file%.md}.pdf" --pdf-engine=xelatex -V mainfont="DejaVu Sans"
+                                        done
+                                    """
                                 }
                             }
                         }
