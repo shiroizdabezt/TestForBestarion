@@ -21,12 +21,13 @@ pipelineJob('markdown-to-pdf-conversion') {
                         stage('Check Commit Message') {
                             steps {
                                 script {
-                                    def msg = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
+                                    // Sửa %B thành %s để chỉ lấy Subject line, tránh lỗi Regex khi commit có body dài
+                                    def msg = sh(returnStdout: true, script: 'git log -1 --pretty=%s').trim()
                                     echo "Commit message: ${msg}"
                                     
                                     if (!(msg ==~ /^doc(\\(.*\\))?: .*/)) {
                                         currentBuild.result = 'ABORTED'
-                                        error("Skipping build: Commit message '${msg}' does not match pattern 'doc: ...' or 'doc(...): ...'")
+                                        error("Skipping build: Commit message does not match pattern.")
                                     }
                                 }
                             }
@@ -35,18 +36,26 @@ pipelineJob('markdown-to-pdf-conversion') {
                         stage('Convert to PDF') {
                             agent {
                                 docker { 
-                                    image 'pandoc/latex' 
-                                    args '-u root --entrypoint='
+                                    image 'pandoc/latex:latest' 
+                                    args '-u root:root --entrypoint='
                                     reuseNode true
                                 }
                             }
                             steps {
-                                script {    
+                                script {
+                                    // SỬA LỖI TẠI ĐÂY: Thêm dấu \\ trước $
+                                    // Lưu ý: Trong Job DSL script('''...'''), bạn cần escape kỹ.
                                     sh """
                                         apk add --no-cache ttf-dejavu || true
+                                        
                                         find . -name "*.md" | while read file; do 
-                                            echo "Converting \${file}..."
-                                            pandoc "\${file}" -o "\${file%.md}.pdf" --pdf-engine=xelatex -V mainfont="DejaVu Sans"
+                                            echo "Converting \\${file}..."
+                                            
+                                            # Cú pháp Bash cắt chuỗi phải có \\ trước $ để Groovy không hiểu nhầm
+                                            pandoc "\\${file}" \
+                                            -o "\\${file%.md}.pdf" \
+                                            --pdf-engine=xelatex \
+                                            -V mainfont="DejaVu Sans"
                                         done
                                     """
                                 }
