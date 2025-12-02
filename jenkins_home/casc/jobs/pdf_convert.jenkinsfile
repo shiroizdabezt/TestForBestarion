@@ -33,6 +33,7 @@ pipeline {
                     script {
                         sh """
                             apk add --no-cache ttf-dejavu sed git librsvg || true
+                            
                             git config --global --add safe.directory "*"
                             git config --global user.email "jenkins-bot@localhost"
                             git config --global user.name "Jenkins PDF Bot"
@@ -40,7 +41,7 @@ pipeline {
 
                             ESC=\$(printf '\\033')
 
-                            find . -name "*.md" | while read filepath; do 
+                            find Markdown -name "*.md" | while read filepath; do 
                                 dir=\$(dirname "\${filepath}")
                                 filename=\$(basename "\${filepath}")
                                 
@@ -64,7 +65,7 @@ pipeline {
                             done
                             
                             echo "Checking for changes..."
-                            find . -name "*.pdf" | xargs git add
+                            find Markdown -name "*.pdf" | xargs git add
                             
                             if ! git diff-index --quiet HEAD; then
                                 echo "Changes detected. Committing and Pushing..."
