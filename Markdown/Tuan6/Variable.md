@@ -161,7 +161,7 @@ Danh sách các Pseudo-Variables chính trong ruby
 |`__ENCODING__`|Kiểu mã hóa của file nguồn|
 
 ### Backslash
-|Backslash|Mô tả|Ví dụ|
+|Backslash|Mô tả|Ví dụ| Ghi chú|
 |:--------------:|--------|-------|
 |`\n`| Newline - xuống dòng (0x0a)|`"abc\ndef"`-> <br>`abc` <br>`def`
 |`\r`| Carriage Return - trở về đầu dòng (0x0d)|`"Hello\rHi"` -> `Hi` ghi đè "Hello" bằng "Hi" trên cùng dòng trong terminal cũ|
