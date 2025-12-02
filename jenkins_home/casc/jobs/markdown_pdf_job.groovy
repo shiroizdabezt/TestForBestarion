@@ -47,16 +47,16 @@ pipelineJob('markdown-to-pdf-conversion') {
             
                                         find . -name "*.md" | while read file; do 
                                             echo "Processing \${file}..."
-                                            sed 's/\\x1b//g; s/\\x1b\\[[0-9;]*[a-zA-Z]//g' "\${file}" > "\${file}.clean"
+                                            sed 's/\\\\x1b//g; s/\\\\x1b\\\\[[0-9;]*[a-zA-Z]//g' "\\${file}" > "\\${file}.clean"
                                             
                                             echo "Converting..."
-                                            pandoc "\${file}.clean" \
-                                            -o "\${file%.md}.pdf" \
+                                            pandoc "\\${file}.clean" \
+                                            -o "\\${file%.md}.pdf" \
                                             --pdf-engine=xelatex \
                                             -V mainfont="DejaVu Sans" \
                                             -V geometry:margin=2cm
                                             
-                                            rm "\${file}.clean"
+                                            rm "\\${file}.clean"
                                         done
                                     """
                                 }
