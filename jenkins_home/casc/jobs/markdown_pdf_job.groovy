@@ -14,8 +14,7 @@ pipelineJob('markdown-to-pdf-conversion') {
                     stages {
                         stage('Checkout') {
                             steps {
-                                git url: 'https://github.com/shiroizdabezt/TestForBestarion', branch: 'main'
-                                credentials('github-key')
+                                git url: 'https://github.com/shiroizdabezt/TestForBestarion', branch: 'main', credentialsId: 'github-key'
                             }
                         }
                         
