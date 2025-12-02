@@ -16,7 +16,7 @@ pipelineJob('markdown-to-pdf-conversion') {
                     branch('main')
                 }
             }
-            scriptPath('pdf_convert.jenkinsfile')
+            scriptPath('jenkins_home/casc/jobs/pdf_convert.jenkinsfile')
             lightweight(true)
         }
     }
