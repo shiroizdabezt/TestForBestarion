@@ -21,12 +21,9 @@ pipelineJob('markdown-to-pdf-conversion') {
                         stage('Check Commit Message') {
                             steps {
                                 script {
-                                    // Get the last commit message
                                     def msg = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
                                     echo "Commit message: ${msg}"
                                     
-                                    // Check if message starts with "doc: " or "doc(<type>): "
-                                    // Regex: ^doc(\\(.*\\))?: .*
                                     if (!(msg ==~ /^doc(\\(.*\\))?: .*/)) {
                                         currentBuild.result = 'ABORTED'
                                         error("Skipping build: Commit message '${msg}' does not match pattern 'doc: ...' or 'doc(...): ...'")
@@ -39,7 +36,6 @@ pipelineJob('markdown-to-pdf-conversion') {
                             agent {
                                 docker { 
                                     image 'pandoc/core' 
-                                    // Ensure we can run shell commands
                                     args '--entrypoint='
                                 }
                             }
