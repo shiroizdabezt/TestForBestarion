@@ -15,3 +15,5 @@
 | `\M-x`            | **Meta-x** – Thêm bit 8 (Meta bit)                                 | c | 0x80          | `"\M-a"` → ký tự có mã ASCII + 128                                               |
 | `\M-\C-x`         | **Meta-Control-x** – Cả Meta và Control                            | —                 | Dùng cho tổ hợp Meta + Ctrl                                                      |
 | `\x`              | **Ký tự x** (nếu `\` không theo cú pháp đặc biệt)                  | —                 | `"Hello\z"` → in `"Helloz"` (vì `\z` không có nghĩa đặc biệt)                    |
+
+khasc owr daya nef
