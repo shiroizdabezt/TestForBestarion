@@ -127,4 +127,5 @@ OFF
 #### 📚 Học được / Learnings
 - Đã chạy được phần build solr hide và show. [Cách sửa](./images/solr.bash)
 
-4
+4  
+5
