@@ -32,7 +32,6 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'github-key', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
                     script {
                         sh """
-                            # Lay ID cua user hien tai (Jenkins user)
                             ORIG_UID=\$(stat -c "%u" .)
                             ORIG_GID=\$(stat -c "%g" .)
 
@@ -45,38 +44,49 @@ pipeline {
 
                             ESC=\$(printf '\\033')
 
-                            find Markdown -name "*.md" | while read filepath; do 
-                                dir=\$(dirname "\${filepath}")
-                                filename=\$(basename "\${filepath}")
-                                
-                                echo "Processing \${filename} in \${dir}..."
-                                
-                                (
-                                    cd "\${dir}" || exit
-                                    
-                                    LC_ALL=C sed "s/\${ESC}//g; s/\${ESC}\\[[0-9;]*[a-zA-Z]//g" "\${filename}" > "\${filename}.clean"
-                                    
-                                    pandoc "\${filename}.clean" \
-                                    -f markdown \
-                                    -o "\${filename%.md}.pdf" \
-                                    --pdf-engine=xelatex \
-                                    -V mainfont="DejaVu Sans" \
-                                    -V geometry:margin=2cm \
-                                    -V header-includes='\\providecommand{\\e}{}\\providecommand{\\s}{\\textbackslash s}'
-                                    
-                                    rm "\${filename}.clean"
-                                )
-                            done
-                            
-                            echo "Checking for changes..."
-                            find Markdown -name "*.pdf" | xargs git add
-                            
-                            if ! git diff-index --quiet HEAD; then
-                                echo "Changes detected. Committing and Pushing..."
-                                git commit -m "chore: auto-generated PDFs"
-                                git push origin HEAD:main
+                            CHANGED_FILES=\$(git diff --name-only --diff-filter=AM HEAD~1 HEAD | grep "^Markdown/.*\\.md\$" || true)
+
+                            if [ -z "\${CHANGED_FILES}" ]; then
+                                echo "No Markdown files changed in folder Markdown/. Skipping conversion."
                             else
-                                echo "No PDF changes detected. Skipping push."
+                                echo "Detected changes in:"
+                                echo "\${CHANGED_FILES}"
+                                
+                                echo "\${CHANGED_FILES}" | while read filepath; do
+                                    if [ -f "\${filepath}" ]; then
+                                        dir=\$(dirname "\${filepath}")
+                                        filename=\$(basename "\${filepath}")
+                                        
+                                        echo "Processing \${filename} in \${dir}..."
+                                        
+                                        (
+                                            cd "\${dir}" || exit
+                                            
+                                            LC_ALL=C sed "s/\${ESC}//g; s/\${ESC}\\[[0-9;]*[a-zA-Z]//g" "\${filename}" > "\${filename}.clean"
+                                            
+                                            pandoc "\${filename}.clean" \
+                                            -f markdown \
+                                            -o "\${filename%.md}.pdf" \
+                                            --pdf-engine=xelatex \
+                                            -V mainfont="DejaVu Sans" \
+                                            -V geometry:margin=2cm \
+                                            -V header-includes='\\providecommand{\\e}{}\\providecommand{\\s}{\\textbackslash s}'
+                                            
+                                            rm "\${filename}.clean"
+                                        )
+                                    fi
+                                done
+                                
+                                echo "Checking for changes..."
+                                find Markdown -name "*.pdf" | xargs git add
+                                
+                                if ! git diff-index --quiet HEAD; then
+                                    echo "Changes detected. Committing and Pushing..."
+                                    git commit -m "chore: auto-generated PDFs"
+                                    git push origin HEAD:main
+                                else
+                                    echo "No PDF changes detected. Skipping push."
+                                fi
                             fi
 
                             chown -R \${ORIG_UID}:\${ORIG_GID} .
