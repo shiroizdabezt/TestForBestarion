@@ -20,7 +20,7 @@ pipeline {
             }
         }
         
-        stage('Convert to PDF') {
+        stage('Convert & Push PDF') {
             agent {
                 docker { 
                     image 'pandoc/latex:latest' 
@@ -29,28 +29,56 @@ pipeline {
                 }
             }
             steps {
-                script {
-                    sh """
-                        apk add --no-cache ttf-dejavu sed || true
-                        
-                        ESC=\$(printf '\\033')
+                // Inject Credentials để có quyền Push
+                withCredentials([usernamePassword(credentialsId: 'github-key', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
+                    script {
+                        sh """
+                            # Cài thêm git để thực hiện lệnh commit/push
+                            apk add --no-cache ttf-dejavu sed git || true
+                            
+                            # Cấu hình Git Identity cho Bot
+                            git config --global --add safe.directory "*"
+                            git config --global user.email "jenkins-bot@localhost"
+                            git config --global user.name "Jenkins PDF Bot"
+                            
+                            # Cài đặt URL remote có chứa Token để Push được qua HTTPS
+                            git remote set-url origin https://\${GIT_USER}:\${GIT_PASS}@github.com/shiroizdabezt/TestForBestarion.git
 
-                        find . -name "*.md" | while read file; do 
-                            echo "Processing \${file}..."
+                            ESC=\$(printf '\\033')
+
+                            # Bắt đầu vòng lặp Convert
+                            find . -name "*.md" | while read file; do 
+                                echo "Processing \${file}..."
+                                
+                                LC_ALL=C sed "s/\${ESC}//g; s/\${ESC}\\[[0-9;]*[a-zA-Z]//g" "\${file}" > "\${file}.clean"
+                                
+                                pandoc "\${file}.clean" \
+                                -f markdown \
+                                -o "\${file%.md}.pdf" \
+                                --pdf-engine=xelatex \
+                                -V mainfont="DejaVu Sans" \
+                                -V geometry:margin=2cm \
+                                -V header-includes='\\providecommand{\\e}{}\\providecommand{\\s}{\\textbackslash s}'
+                                
+                                rm "\${file}.clean"
+                            done
                             
-                            LC_ALL=C sed "s/\${ESC}//g; s/\${ESC}\\[[0-9;]*[a-zA-Z]//g" "\${file}" > "\${file}.clean"
+                            # LOGIC PUSH NGƯỢC LÊN GITHUB
+                            echo "Checking for changes..."
                             
-                            pandoc "\${file}.clean" \
-                            -f markdown \
-                            -o "\${file%.md}.pdf" \
-                            --pdf-engine=xelatex \
-                            -V mainfont="DejaVu Sans" \
-                            -V geometry:margin=2cm \
-                            -V header-includes='\\providecommand{\\e}{}\\providecommand{\\s}{\\textbackslash s}'
+                            # Add tất cả file PDF
+                            find . -name "*.pdf" | xargs git add
                             
-                            rm "\${file}.clean"
-                        done
-                    """
+                            # Kiểm tra xem có gì thay đổi không
+                            if ! git diff-index --quiet HEAD; then
+                                echo "Changes detected. Committing and Pushing..."
+                                git commit -m "chore: auto-generated PDFs"
+                                git push origin HEAD:main
+                            else
+                                echo "No PDF changes detected. Skipping push."
+                            fi
+                        """
+                    }
                 }
             }
         }
