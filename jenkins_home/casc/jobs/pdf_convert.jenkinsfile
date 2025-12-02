@@ -61,6 +61,8 @@ pipeline {
                             git config --global user.email "jenkins-bot@localhost"
                             git config --global user.name "Jenkins PDF Bot"
                             git remote set-url origin https://\${GIT_USER}:\${GIT_PASS}@github.com/shiroizdabezt/TestForBestarion.git
+                            
+                            git fetch origin main
 
                             ESC=\$(printf '\\033')
                             
@@ -70,8 +72,10 @@ pipeline {
                                 echo "Mode: ALL. Scanning all files in \$TARGET..."
                                 FILES_LIST=\$(find "\$TARGET" -name "*.md")
                             else
-                                echo "Mode: CHANGED_ONLY. Scanning changed files in \$TARGET..."
-                                FILES_LIST=\$(git diff --name-only --diff-filter=AM HEAD~1 HEAD | grep "^\$TARGET/.*\\.md\$" || true)
+                                echo "Mode: CHANGED_ONLY."
+                                
+                                echo "Comparing HEAD with origin/main to find changed files..."
+                                FILES_LIST=\$(git diff --name-only --diff-filter=AM origin/main...HEAD | grep "^\$TARGET/.*\\.md\$" || true)
                             fi
 
                             if [ -z "\${FILES_LIST}" ]; then
