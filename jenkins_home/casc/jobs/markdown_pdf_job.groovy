@@ -1,77 +1,23 @@
 pipelineJob('markdown-to-pdf-conversion') {
-    description('Job to convert Markdown files to PDF using Pandoc, triggered by specific commit messages.')
+    description('Job to convert Markdown files to PDF using Pandoc (Source from Git)')
     
     triggers {
         githubPush()
     }
 
     definition {
-        cps {
-            script('''
-                pipeline {
-                    agent any
-                    
-                    stages {
-                        stage('Checkout') {
-                            steps {
-                                git url: 'https://github.com/shiroizdabezt/TestForBestarion', branch: 'main', credentialsId: 'github-key'
-                            }
-                        }
-                        
-                        stage('Check Commit Message') {
-                            steps {
-                                script {
-                                    def msg = sh(returnStdout: true, script: 'git log -1 --pretty=%s').trim()
-                                    if (!(msg ==~ /^doc(\\(.*\\))?: .*/)) {
-                                        currentBuild.result = 'ABORTED'
-                                        error("Skipping build: Commit message does not match pattern.")
-                                    }
-                                }
-                            }
-                        }
-                        
-                        stage('Convert to PDF') {
-                            agent {
-                                docker { 
-                                    image 'pandoc/latex:latest' 
-                                    args '-u root:root --entrypoint='
-                                    reuseNode true
-                                }
-                            }
-                            steps {
-                                script {    
-                                    sh """
-                                        apk add --no-cache ttf-dejavu sed || true
-                                        
-                                        ESC=\\$(printf '\\033')
-
-                                        find . -name "*.md" | while read file; do 
-                                            echo "Processing \${file}..."
-                                            
-                                            sed "s/\${ESC}//g; s/\${ESC}\\x5B[0-9;]*[a-zA-Z]//g" "\${file}" > "\${file}.clean"
-                                            
-                                            pandoc "\${file}.clean" \
-                                            -o "\${file%.md}.pdf" \
-                                            --pdf-engine=xelatex \
-                                            -V mainfont="DejaVu Sans" \
-                                            -V geometry:margin=2cm
-                                            
-                                            rm "\${file}.clean"
-                                        done
-                                    """
-                                }
-                            }
-                        }
-                        
-                        stage('Archive Artifacts') {
-                            steps {
-                                archiveArtifacts artifacts: '**/*.pdf', allowEmptyArchive: true
-                            }
-                        }
+        cpsScm {
+            scm {
+                git {
+                    remote {
+                        url('https://github.com/shiroizdabezt/TestForBestarion')
+                        credentials('github-key')
                     }
+                    branch('main')
                 }
-            '''.stripIndent())
-            sandbox(true)
+            }
+            scriptPath('pdf_convert.jenkinsfile')
+            lightweight(true)
         }
     }
 }
