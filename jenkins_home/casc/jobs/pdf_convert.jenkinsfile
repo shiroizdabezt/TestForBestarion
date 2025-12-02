@@ -33,7 +33,6 @@ pipeline {
                     sh """
                         apk add --no-cache ttf-dejavu sed || true
                         
-
                         ESC=\$(printf '\\033')
 
                         find . -name "*.md" | while read file; do 
@@ -47,7 +46,7 @@ pipeline {
                             --pdf-engine=xelatex \
                             -V mainfont="DejaVu Sans" \
                             -V geometry:margin=2cm \
-                            -V header-includes='\\providecommand{\\e}{}'
+                            -V header-includes='\\providecommand{\\e}{}\\providecommand{\\s}{\\textbackslash s}'
                             
                             rm "\${file}.clean"
                         done
