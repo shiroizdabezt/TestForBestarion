@@ -33,18 +33,21 @@ pipeline {
                     sh """
                         apk add --no-cache ttf-dejavu sed || true
                         
+
                         ESC=\$(printf '\\033')
 
                         find . -name "*.md" | while read file; do 
                             echo "Processing \${file}..."
                             
-                            sed "s/\${ESC}//g; s/\${ESC}\\[[0-9;]*[a-zA-Z]//g" "\${file}" > "\${file}.clean"
+                            LC_ALL=C sed "s/\${ESC}//g; s/\${ESC}\\[[0-9;]*[a-zA-Z]//g" "\${file}" > "\${file}.clean"
                             
                             pandoc "\${file}.clean" \
+                            -f markdown \
                             -o "\${file%.md}.pdf" \
                             --pdf-engine=xelatex \
                             -V mainfont="DejaVu Sans" \
-                            -V geometry:margin=2cm
+                            -V geometry:margin=2cm \
+                            -V header-includes='\\providecommand{\\e}{}'
                             
                             rm "\${file}.clean"
                         done
