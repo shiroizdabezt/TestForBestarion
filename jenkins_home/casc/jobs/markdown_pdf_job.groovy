@@ -35,7 +35,7 @@ pipelineJob('markdown-to-pdf-conversion') {
                         stage('Convert to PDF') {
                             agent {
                                 docker { 
-                                    image 'pandoc/core' 
+                                    image 'pandoc/latex' 
                                     args '--entrypoint='
                                     reuseNode true
                                 }
