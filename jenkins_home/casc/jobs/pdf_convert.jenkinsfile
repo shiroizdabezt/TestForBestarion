@@ -32,6 +32,10 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'github-key', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
                     script {
                         sh """
+                            # Lay ID cua user hien tai (Jenkins user)
+                            ORIG_UID=\$(stat -c "%u" .)
+                            ORIG_GID=\$(stat -c "%g" .)
+
                             apk add --no-cache ttf-dejavu sed git librsvg || true
                             
                             git config --global --add safe.directory "*"
@@ -74,6 +78,8 @@ pipeline {
                             else
                                 echo "No PDF changes detected. Skipping push."
                             fi
+
+                            chown -R \${ORIG_UID}:\${ORIG_GID} .
                         """
                     }
                 }
