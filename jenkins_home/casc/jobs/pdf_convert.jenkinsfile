@@ -18,21 +18,61 @@ pipeline {
             }
         }
         
-        stage('Check Commit Message') {
+        stage('Check Commit Message & Filter') {
             steps {
                 script {
                     def manualCauses = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
                     def isManual = manualCauses != null && manualCauses.size() > 0
                     
-                    if (!isManual) {
-                        def msg = sh(returnStdout: true, script: 'git log -1 --pretty=%s').trim()
-                        if (!(msg ==~ /^doc(\\(.*\\))?: .*/)) {
-                            currentBuild.result = 'ABORTED'
-                            error("Skipping build: Commit message does not match pattern.")
-                        }
+                    // Logic moi: Quet toan bo changeLog de tim file va check message
+                    def changedFilesBuffer = []
+                    def hasDocMessage = false
+                    
+                    // Lay tat ca change sets (cac commit trong lan push nay)
+                    def changeLogSets = currentBuild.changeSets
+                    
+                    if (changeLogSets.size() == 0) {
+                         // Truong hop build lan dau hoac Force Build khong co change log
+                         // Fallback check commit cuoi cung
+                         def lastMsg = sh(returnStdout: true, script: 'git log -1 --pretty=%s').trim()
+                         if (lastMsg ==~ /^doc(\\(.*\\))?: .*/) hasDocMessage = true
                     } else {
-                        echo "Manual build detected. Skipping commit message check."
+                        for (int i = 0; i < changeLogSets.size(); i++) {
+                            def entries = changeLogSets[i].items
+                            for (int j = 0; j < entries.length; j++) {
+                                def entry = entries[j]
+                                
+                                // 1. Kiem tra xem co commit nao bat dau bang doc: khong
+                                if (entry.msg ==~ /^doc(\\(.*\\))?: .*/) {
+                                    hasDocMessage = true
+                                }
+                                
+                                // 2. Nhat file .md thay doi
+                                def files = entry.affectedFiles
+                                for (int k = 0; k < files.size(); k++) {
+                                    def file = files[k]
+                                    if (file.path.startsWith("${params.TARGET_FOLDER}/") && file.path.endsWith(".md")) {
+                                        changedFilesBuffer.add(file.path)
+                                    }
+                                }
+                            }
+                        }
                     }
+
+                    // Quyet dinh co chay tiep hay khong
+                    if (isManual) {
+                        echo "Manual build. Ignoring commit message checks."
+                    } else {
+                        if (hasDocMessage) {
+                            echo "Found at least one 'doc:' commit. Proceeding..."
+                        } else {
+                            currentBuild.result = 'ABORTED'
+                            error("Skipping build: No commit in this push starts with 'doc:'")
+                        }
+                    }
+                    
+                    // Luu danh sach file tim duoc vao bien moi truong de dung o stage sau
+                    env.GROOVY_DETECTED_FILES = changedFilesBuffer.join(" ")
                 }
             }
         }
@@ -48,26 +88,6 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'github-key', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
                     script {
-                        def changedFilesBuffer = []
-                        if (params.MODE == 'CHANGED_ONLY') {
-                            def changeLogSets = currentBuild.changeSets
-                            for (int i = 0; i < changeLogSets.size(); i++) {
-                                def entries = changeLogSets[i].items
-                                for (int j = 0; j < entries.length; j++) {
-                                    def entry = entries[j]
-                                    def files = entry.affectedFiles
-                                    for (int k = 0; k < files.size(); k++) {
-                                        def file = files[k]
-                                        if (file.path.startsWith("${params.TARGET_FOLDER}/") && file.path.endsWith(".md")) {
-                                            changedFilesBuffer.add(file.path)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        
-                        env.GROOVY_DETECTED_FILES = changedFilesBuffer.join(" ")
-
                         sh """
                             ORIG_UID=\$(stat -c "%u" .)
                             ORIG_GID=\$(stat -c "%g" .)
@@ -92,21 +112,24 @@ pipeline {
                             else
                                 echo "Mode: CHANGED_ONLY."
                                 if [ -n "\$GROOVY_DETECTED_FILES" ]; then
-                                    echo "Groovy detected changes from multiple commits."
+                                    echo "Groovy detected changes from changesets."
                                     FILES_LIST="\$GROOVY_DETECTED_FILES"
                                 else
-                                    echo "Groovy found no changes (First build or Manual Rebuild?). Falling back to HEAD~1 check."
+                                    echo "No files detected in changeset. Checking HEAD~1 fallback..."
                                     FILES_LIST=\$(git diff --name-only --diff-filter=AM HEAD~1 HEAD | grep "^\$TARGET/.*\\.md\$" || true)
                                 fi
                             fi
 
                             if [ -z "\${FILES_LIST}" ]; then
-                                echo "No files found to process in folder \$TARGET with mode \$MODE."
+                                echo "No files found to process."
                             else
                                 echo "Files to process:"
                                 echo "\${FILES_LIST}"
                                 
-                                for filepath in \${FILES_LIST}; do
+                                # Loai bo cac file trung lap (neu 1 file bi sua trong nhieu commit)
+                                FILES_LIST=\$(echo "\${FILES_LIST}" | tr ' ' '\\n' | sort -u)
+                                
+                                echo "\${FILES_LIST}" | while read filepath; do
                                     if [ -f "\${filepath}" ]; then
                                         dir=\$(dirname "\${filepath}")
                                         filename=\$(basename "\${filepath}")
