@@ -128,3 +128,4 @@ OFF
 - Đã chạy được phần build solr hide và show. [Cách sửa](./images/solr.bash)
 
 lan 1: commit docs
+lan 2: commit docs
