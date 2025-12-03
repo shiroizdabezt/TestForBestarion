@@ -1,0 +1,197 @@
+\documentclass[11pt,a4paper]{article}
+
+% --- CÁC GÓI CẦN THIẾT ---
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage[table]{xcolor} 
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{fancyhdr}
+\usepackage[english]{babel} 
+\usepackage{fontspec}
+
+% --- GÓI ĐỂ CAN THIỆP VÀO LOGIC CỦA PANDOC ---
+\usepackage{etoolbox} 
+
+% =================================================================
+% --- CẤU HÌNH CAPTION (CHÚ THÍCH BẢNG) ---
+% =================================================================
+\usepackage{caption}
+
+% 1. Cấu hình Style: In đậm Table X, Nội dung in nghiêng
+\captionsetup[table]{
+  labelfont={bf, color=black},
+  textfont={it},
+  labelsep=colon,
+  skip=10pt,
+  position=bottom 
+}
+
+% 2. [CHIÊU THỨC] CHUYỂN CAPTION TỪ ĐẦU XUỐNG CUỐI
+% Tạo biến tạm để lưu nội dung caption
+\newcommand{\globalTableCaption}{}
+
+% Trước khi bảng longtable bắt đầu:
+\AtBeginEnvironment{longtable}{
+  % Reset biến caption
+  \renewcommand{\globalTableCaption}{} 
+  % Lưu lệnh caption gốc lại
+  \let\OldCaption\caption 
+  % Định nghĩa lại lệnh caption: Chỉ lưu text vào biến, KHÔNG IN RA GÌ CẢ
+  \renewcommand{\caption}[2][]{
+     \renewcommand{\globalTableCaption}{##2}
+  }
+}
+
+% Sau khi bảng longtable kết thúc:
+\AtEndEnvironment{longtable}{
+  % Kiểm tra xem có caption được lưu không
+  \ifdefempty{\globalTableCaption}{}{
+    % Nếu có, dùng lệnh captionof để in nó ra bên dưới bảng
+    \begin{center} 
+       \captionof{table}{\globalTableCaption}
+    \end{center}
+  }
+}
+
+% 3. CĂN GIỮA BẢNG LONGTABLE
+% Ép bảng longtable tự động giãn đều 2 bên (căn giữa)
+\setlength{\LTleft}{\fill}
+\setlength{\LTright}{\fill}
+
+% =================================================================
+
+% --- CẤU HÌNH MỤC LỤC (TOC) ---
+\usepackage{tocloft}
+\tocloftpagestyle{fancy} 
+
+% 1. Cấu hình Font chữ, Màu sắc cho Mục lục
+\definecolor{brandOrange}{RGB}{237, 125, 49}
+\renewcommand{\cfttoctitlefont}{\color{brandOrange}\Huge\bfseries\sffamily\MakeUppercase}
+
+% 2. Cấu hình dòng mục lục
+\renewcommand{\cftsecfont}{\sffamily}
+\renewcommand{\cftsubsecfont}{\sffamily}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+% SỬA LỖI HYPERTARGET
+\usepackage[unicode=true]{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=blue,
+    pdftitle={Controlled Document Convention},
+    pdfpagemode=FullScreen,
+}
+
+% --- CÁC CẤU HÌNH KHÁC ---
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\IfFontExistsTF{Arial}{
+    \setmainfont{Arial}
+}{
+    \setmainfont{TeX Gyre Heros}
+}
+
+% =================================================================
+% --- CẤU HÌNH BẢNG TỰ ĐỘNG TÔ MÀU CAM HÀNG ĐẦU TIÊN ---
+% =================================================================
+
+% 1. Cấu hình độ giãn dòng và khoảng cách
+\renewcommand{\arraystretch}{1.3} 
+\setlength{\extrarowheight}{2pt}
+
+% 2. Định nghĩa lại toprule của Pandoc
+\providecommand{\toprule}{}
+\renewcommand{\toprule}{
+    \hline                      
+    \rowcolor{brandOrange}      % <--- TỰ ĐỘNG TÔ MÀU CAM
+}
+
+% 3. Các đường kẻ giữa và dưới đáy
+\providecommand{\midrule}{}
+\renewcommand{\midrule}{\hline}
+
+\providecommand{\bottomrule}{}
+\renewcommand{\bottomrule}{\hline}
+
+% 4. Các lệnh hỗ trợ longtable
+\providecommand{\endhead}{}
+\providecommand{\endfirsthead}{}
+
+% =================================================================
+
+% --- ĐỊNH NGHĨA TIÊU ĐỀ GIẢ (CUSTOM TITLE) ---
+\newcommand{\customTitle}[1]{
+    \par\noindent 
+    {\color{brandOrange}\Huge\bfseries\sffamily\MakeUppercase{#1}}
+    \vspace{0.5cm} 
+    \par
+}
+
+% --- ĐỊNH NGHĨA LỆNH CHÈN MỤC LỤC THỦ CÔNG ---
+\newcommand{\insertTOC}{
+    \newpage
+    \renewcommand{\contentsname}{TABLE OF CONTENT} 
+    \tableofcontents
+    \newpage
+}
+
+% --- THIẾT KẾ TRANG BÌA ---
+\renewcommand{\maketitle}{
+    \begin{titlepage}
+        \newgeometry{top=3cm, bottom=3cm, left=2.5cm, right=2.5cm}
+        \centering
+        \vspace*{1cm}
+        \IfFileExists{logo.jpeg}{\includegraphics[width=4cm]{logo.jpeg}}{
+            \IfFileExists{logo.png}{\includegraphics[width=4cm]{logo.png}}{
+                \begin{center}\fbox{\parbox[c][2cm]{4cm}{\centering LOGO MISSING}}\end{center}
+            }
+        }
+        \vspace{0.5cm} 
+        {\color{brandOrange} \fontsize{30}{75}\selectfont $title$ \par}
+        $if(subtitle)$ \vspace{1.3cm} {\fontsize{24}{28}\selectfont $subtitle$ \par} $endif$
+        \vfill 
+        \raggedright
+        \renewcommand{\arraystretch}{1.5}
+        \begin{tabular}{ll}
+            \textbf{Security classification:} & $security$ \\
+            \textbf{Document code:} & $doc_code$ \\
+            \textbf{Last updated by:} & $updated_by$ \\
+            \textbf{Effective date:} & $effective_date$ \\
+            \textbf{Version:} & $version$ \\
+            \textbf{Template ID:} & \detokenize{$template_id$} \\
+        \end{tabular}
+        \restoregeometry
+    \end{titlepage}
+}
+
+% --- CẤU HÌNH HEADER VÀ FOOTER ---
+\pagestyle{fancy}
+\fancyhf{} 
+
+% 1. Header trái
+$if(header_line)$
+    \fancyhead[L]{\textcolor{gray}{\small $header_line$}}
+$else$
+    \fancyhead[L]{\textcolor{gray}{\small $title$}}
+$endif$
+
+% 2. Footer phải
+\fancyfoot[R]{\thepage}
+
+% 3. Đường kẻ
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{gray}\leaders\hrule height \headrulewidth\hfill}}
+
+
+% --- BẮT ĐẦU VĂN BẢN ---
+\begin{document}
+\maketitle 
+
+$body$
+
+\end{document}
