@@ -20,3 +20,5 @@ scrape_configs:
         labels:
           env: 'production'
           app: 'rails_passenger'
+
+          # Lan 2
