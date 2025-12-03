@@ -29,26 +29,20 @@
 }
 
 % 2. [CHIÊU THỨC] CHUYỂN CAPTION TỪ ĐẦU XUỐNG CUỐI
-% Tạo biến tạm để lưu nội dung caption
 \newcommand{\globalTableCaption}{}
 
-% Trước khi bảng longtable bắt đầu:
 \AtBeginEnvironment{longtable}{
-  % Reset biến caption
   \renewcommand{\globalTableCaption}{} 
-  % Lưu lệnh caption gốc lại
   \let\OldCaption\caption 
-  % Định nghĩa lại lệnh caption: Chỉ lưu text vào biến, KHÔNG IN RA GÌ CẢ
   \renewcommand{\caption}[2][]{
      \renewcommand{\globalTableCaption}{##2}
+     % Lệnh quan trọng: Ghi nhận caption vào danh sách List of Tables
+     \addcontentsline{lot}{table}{\numberline{\thetable}##2}
   }
 }
 
-% Sau khi bảng longtable kết thúc:
 \AtEndEnvironment{longtable}{
-  % Kiểm tra xem có caption được lưu không
   \ifdefempty{\globalTableCaption}{}{
-    % Nếu có, dùng lệnh captionof để in nó ra bên dưới bảng
     \begin{center} 
        \captionof{table}{\globalTableCaption}
     \end{center}
@@ -56,24 +50,30 @@
 }
 
 % 3. CĂN GIỮA BẢNG LONGTABLE
-% Ép bảng longtable tự động giãn đều 2 bên (căn giữa)
 \setlength{\LTleft}{\fill}
 \setlength{\LTright}{\fill}
 
 % =================================================================
-
-% --- CẤU HÌNH MỤC LỤC (TOC) ---
+% --- CẤU HÌNH MỤC LỤC & DANH SÁCH BẢNG (TOC & LOT) ---
+% =================================================================
 \usepackage{tocloft}
 \tocloftpagestyle{fancy} 
 
-% 1. Cấu hình Font chữ, Màu sắc cho Mục lục
+% --- 1. CẤU HÌNH TABLE OF CONTENT (MỤC LỤC CHÍNH) ---
 \definecolor{brandOrange}{RGB}{237, 125, 49}
 \renewcommand{\cfttoctitlefont}{\color{brandOrange}\Huge\bfseries\sffamily\MakeUppercase}
-
-% 2. Cấu hình dòng mục lục
 \renewcommand{\cftsecfont}{\sffamily}
 \renewcommand{\cftsubsecfont}{\sffamily}
 \renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+
+% --- 2. [MỚI] CẤU HÌNH LIST OF TABLES (MỤC LỤC BẢNG) ---
+% Định dạng tiêu đề "INDEX OF TABLES" giống hệt "TABLE OF CONTENT"
+\renewcommand{\cftlottitlefont}{\color{brandOrange}\Huge\bfseries\sffamily\MakeUppercase}
+% Định dạng font chữ cho các dòng trong danh sách bảng
+\renewcommand{\cfttabfont}{\sffamily}
+\renewcommand{\cfttabpagefont}{\sffamily}
+\renewcommand{\cfttableader}{\cftdotfill{\cftdotsep}}
+
 
 % SỬA LỖI HYPERTARGET
 \usepackage[unicode=true]{hyperref}
@@ -100,31 +100,29 @@
 % --- CẤU HÌNH BẢNG TỰ ĐỘNG TÔ MÀU CAM HÀNG ĐẦU TIÊN ---
 % =================================================================
 
-% 1. Cấu hình độ giãn dòng và khoảng cách
 \renewcommand{\arraystretch}{1.3} 
 \setlength{\extrarowheight}{2pt}
 
-% 2. Định nghĩa lại toprule của Pandoc
 \providecommand{\toprule}{}
 \renewcommand{\toprule}{
     \hline                      
-    \rowcolor{brandOrange}      % <--- TỰ ĐỘNG TÔ MÀU CAM
+    \rowcolor{brandOrange}      
 }
 
-% 3. Các đường kẻ giữa và dưới đáy
 \providecommand{\midrule}{}
 \renewcommand{\midrule}{\hline}
 
 \providecommand{\bottomrule}{}
 \renewcommand{\bottomrule}{\hline}
 
-% 4. Các lệnh hỗ trợ longtable
 \providecommand{\endhead}{}
 \providecommand{\endfirsthead}{}
 
 % =================================================================
 
-% --- ĐỊNH NGHĨA TIÊU ĐỀ GIẢ (CUSTOM TITLE) ---
+% --- ĐỊNH NGHĨA CÁC LỆNH CHÈN THỦ CÔNG ---
+
+% 1. Tiêu đề giả (cho Document Control)
 \newcommand{\customTitle}[1]{
     \par\noindent 
     {\color{brandOrange}\Huge\bfseries\sffamily\MakeUppercase{#1}}
@@ -132,11 +130,19 @@
     \par
 }
 
-% --- ĐỊNH NGHĨA LỆNH CHÈN MỤC LỤC THỦ CÔNG ---
+% 2. Chèn Mục Lục Chính
 \newcommand{\insertTOC}{
     \newpage
     \renewcommand{\contentsname}{TABLE OF CONTENT} 
     \tableofcontents
+    \newpage
+}
+
+% 3. [MỚI] Chèn Danh Sách Bảng
+\newcommand{\insertListTables}{
+    \newpage
+    \renewcommand{\listtablename}{INDEX OF TABLES} % Đổi tên thành INDEX OF TABLES
+    \listoftables
     \newpage
 }
 
@@ -173,17 +179,14 @@
 \pagestyle{fancy}
 \fancyhf{} 
 
-% 1. Header trái
 $if(header_line)$
     \fancyhead[L]{\textcolor{gray}{\small $header_line$}}
 $else$
     \fancyhead[L]{\textcolor{gray}{\small $title$}}
 $endif$
 
-% 2. Footer phải
 \fancyfoot[R]{\thepage}
 
-% 3. Đường kẻ
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\headrule}{\hbox to\headwidth{\color{gray}\leaders\hrule height \headrulewidth\hfill}}
 
