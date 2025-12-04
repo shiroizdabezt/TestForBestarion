@@ -10,21 +10,10 @@ version: "2.1"
 template_id: "ODT_Base\\_Template"
 header_line: "Bestarion.QM.CON.001-Controlled\\_Document\\_Convention-2\\_1"
 toc: false
+booktabs: false
+use_tables: true
+
 ---
-\customTitle{Document Control}
-
-| Version | Change description | Changed by | Date |
-|---|---|---|---|
-| 0.1 | Initiate | MinhNT | Dec 16, 2014 |
-| 0.2 | Update content... | MinhNT | Dec 20, 2014 |
-
-: abc  
-
-\insertTOC  
-
-\insertListTables  
-
-\insertListFigures
 
 # **Introduction**
 
@@ -44,11 +33,11 @@ Following documents are outside the scope of this convention:
 
 ## **Definition And Abbreviation**
 
-BoD: Board of Directors
+- BoD: Board of Directors
 
-QM: Quality Management
+- QM: Quality Management
 
-Controlled Document: A document with its versions to be controlled, in order to ensure appropriate
+- Controlled Document: A document with its versions to be controlled, in order to ensure appropriate
 
 access to correct content. When a controlled document is to be changed, its new
 
@@ -87,6 +76,8 @@ Each part is separated by a stop ('.').
 
 - **Unit Code**: Code representing the unit
   - In case unit is a department or portfolio: refer to corporate organizational structure for the corresponding code
+    - Bestarion
+      - IT: Information Technology Department
   - In case unit is a sub-group within a department or a portfolio: refer to the department/ portfolio charter for the corresponding code
   - In case document apply in a sub-company, unit code may be included company name
 - **Document Type Code**: Refer to [\[1\]](#page-5-8) for the codes of document types
