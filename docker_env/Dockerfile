@@ -158,6 +158,7 @@ tlmgr install \
     csquotes \
     euler \
     eurosym \
+    enumitem \
     fancyvrb \
     float \
     fontspec \
