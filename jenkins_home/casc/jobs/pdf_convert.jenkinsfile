@@ -69,7 +69,9 @@ pipeline {
             agent {
                 docker { 
                     image 'pandoc/latex:latest' 
-                    args '-u root:root -v /usr/share/fonts:/host_fonts:ro -v /var/cache/fontconfig:/var/cache/fontconfig --entrypoint='
+                    // SU DUNG MOUNT FONT NHUNG KHONG MOUNT CACHE
+                    // -v /usr/share/fonts:/host_fonts:ro : Mount font tu may chu vao thu muc tam
+                    args '-u root:root -v /usr/share/fonts:/host_fonts:ro --entrypoint='
                     reuseNode true
                 }
             }
@@ -85,8 +87,25 @@ pipeline {
                             
                             apk add --no-cache sed git librsvg fontconfig || true
                             
-                            fc-cache -f
+                            # --- DEBUG & SETUP FONT ---
+                            echo "Setting up fonts..."
+                            mkdir -p /usr/share/fonts/truetype/custom
                             
+                            # Debug: Kiem tra xem co nhin thay font tu may chu khong
+                            echo "Checking mounted fonts in /host_fonts:"
+                            ls -R /host_fonts | grep -i "arial" | head -n 5 || echo "WARNING: Khong tim thay file Arial nao trong mount!"
+
+                            # Copy font: Tim moi file co ten chua 'arial' (khong phan biet hoa thuong)
+                            find /host_fonts -type f -iname "*arial*" -exec cp -L {} /usr/share/fonts/truetype/custom/ \\;
+                            
+                            # Tao cache moi (QUAN TRONG: Khong dung cache cua may chu)
+                            fc-cache -fv
+                            
+                            # Kiem tra ket qua
+                            echo "Checking available fonts:"
+                            fc-list | grep -i "Arial" || echo "CRITICAL ERROR: Font Arial van chua duoc nhan!"
+                            # --------------------------
+
                             TEMPLATE_PATH="\$(pwd)/Markdown/Bestarion.QM.CON.001-Controlled_Document_Convention-2_1/template.tex"
                             
                             if [ ! -f "\$TEMPLATE_PATH" ]; then
@@ -137,11 +156,15 @@ pipeline {
                                             
                                             LC_ALL=C sed "s/\${ESC}//g; s/\${ESC}\\[[0-9;]*[a-zA-Z]//g" "\${filename}" > "\${filename}.clean"
                                             
+                                            # THEM -V sansfont=Arial de fix loi TeX Gyre Heros
                                             pandoc "\${filename}.clean" \
+                                            -f markdown \
                                             -o "\${filename%.md}.pdf" \
                                             --template="\${TEMPLATE_PATH}" \
                                             --pdf-engine=xelatex \
                                             --resource-path=. \
+                                            -V mainfont="Arial" \
+                                            -V sansfont="Arial" \
                                             -V header-includes='\\providecommand{\\e}{}\\providecommand{\\s}{\\textbackslash s}'
                                             
                                             rm "\${filename}.clean"
