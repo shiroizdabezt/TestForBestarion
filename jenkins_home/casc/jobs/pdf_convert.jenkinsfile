@@ -38,7 +38,6 @@ pipeline {
                             for (int j = 0; j < entries.length; j++) {
                                 def entry = entries[j]
                                 if (entry.msg ==~ /^doc(\\(.*\\))?: .*/) hasDocMessage = true
-                                
                                 def files = entry.affectedFiles
                                 for (int k = 0; k < files.size(); k++) {
                                     def file = files[k]
@@ -87,8 +86,8 @@ pipeline {
                             apk add --no-cache sed git librsvg fontconfig || true
                             
                             # --- FIX LOI LATEX TABLE & CALC ---
-                            # Cai them cac goi xu ly bang va tinh toan
-                            tlmgr install tocloft calc array longtable booktabs
+                            # 'tools' chua cac goi: array, calc, longtable, tabularx, verbatim...
+                            tlmgr install tocloft tools
                             # ----------------------------------
                             
                             # --- SETUP FONT ---
@@ -148,9 +147,6 @@ pipeline {
                                             
                                             LC_ALL=C sed "s/\${ESC}//g; s/\${ESC}\\[[0-9;]*[a-zA-Z]//g" "\${filename}" > "\${filename}.clean"
                                             
-                                            # CAP NHAT PANDOC:
-                                            # 1. Load them goi: calc, array, longtable, booktabs
-                                            # 2. Tao counter 'none' gia de tranh loi
                                             pandoc "\${filename}.clean" \
                                             -f markdown \
                                             -o "\${filename%.md}.pdf" \
