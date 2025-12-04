@@ -69,7 +69,6 @@ pipeline {
             agent {
                 docker { 
                     image 'pandoc/latex:latest' 
-                    // Mount font tu may chu (host) vao /host_fonts trong container
                     args '-u root:root -v /usr/share/fonts:/host_fonts:ro --entrypoint='
                     reuseNode true
                 }
@@ -86,25 +85,20 @@ pipeline {
                             
                             apk add --no-cache sed git librsvg fontconfig || true
                             
-                            # --- BẮT ĐẦU SETUP FONT ---
+                            # --- CAI DAT GOI LATEX THIEU ---
+                            # tlmgr la trinh quan ly goi cua TexLive
+                            # Install tocloft de fix loi thieu file style
+                            tlmgr install tocloft
+                            # --------------------------------
+
+                            # --- SETUP FONT ---
                             echo "Setting up fonts..."
                             mkdir -p /usr/share/fonts/truetype/custom
-                            
-                            # Debug: Kiem tra xem folder mount co file khong
-                            echo "Listing fonts in /host_fonts:"
-                            ls /host_fonts | head -n 5 || echo "Folder /host_fonts empty!"
-
-                            # Copy font Arial tu thu muc mount vao he thong
-                            # Dung lenh find de tim bat ke file nam o thu muc con nao
                             find /host_fonts -type f -iname "*arial*" -exec cp -L {} /usr/share/fonts/truetype/custom/ \\;
-                            
-                            # Tao cache font moi
                             fc-cache -fv
-                            
-                            # Kiem tra xem Container da nhan dien duoc Arial chua
                             echo "Checking installed fonts:"
                             fc-list | grep -i "Arial" || echo "CRITICAL: Arial font NOT found!"
-                            # --- KẾT THÚC SETUP FONT ---
+                            # ------------------
 
                             TEMPLATE_PATH="\$(pwd)/Markdown/Bestarion.QM.CON.001-Controlled_Document_Convention-2_1/template.tex"
                             
@@ -156,7 +150,6 @@ pipeline {
                                             
                                             LC_ALL=C sed "s/\${ESC}//g; s/\${ESC}\\[[0-9;]*[a-zA-Z]//g" "\${filename}" > "\${filename}.clean"
                                             
-                                            # Them -V sansfont=Arial va mainfont=Arial
                                             pandoc "\${filename}.clean" \
                                             -f markdown \
                                             -o "\${filename%.md}.pdf" \
