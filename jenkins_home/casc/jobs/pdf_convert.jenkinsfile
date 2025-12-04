@@ -38,6 +38,7 @@ pipeline {
                             for (int j = 0; j < entries.length; j++) {
                                 def entry = entries[j]
                                 if (entry.msg ==~ /^doc(\\(.*\\))?: .*/) hasDocMessage = true
+                                
                                 def files = entry.affectedFiles
                                 for (int k = 0; k < files.size(); k++) {
                                     def file = files[k]
@@ -53,7 +54,7 @@ pipeline {
                         echo "Manual build. Ignoring commit message checks."
                     } else {
                         if (hasDocMessage) {
-                            echo "Found at least one 'doc:' commit. Proceeding..."
+                            echo "Found at least one 'doc:' commit."
                         } else {
                             currentBuild.result = 'ABORTED'
                             error("Skipping build: No commit in this push starts with 'doc:'")
@@ -85,19 +86,16 @@ pipeline {
                             
                             apk add --no-cache sed git librsvg fontconfig || true
                             
-                            # --- CAI DAT GOI LATEX THIEU ---
-                            # tlmgr la trinh quan ly goi cua TexLive
-                            # Install tocloft de fix loi thieu file style
-                            tlmgr install tocloft
-                            # --------------------------------
-
+                            # --- FIX LOI LATEX TABLE & CALC ---
+                            # Cai them cac goi xu ly bang va tinh toan
+                            tlmgr install tocloft calc array longtable booktabs
+                            # ----------------------------------
+                            
                             # --- SETUP FONT ---
                             echo "Setting up fonts..."
                             mkdir -p /usr/share/fonts/truetype/custom
                             find /host_fonts -type f -iname "*arial*" -exec cp -L {} /usr/share/fonts/truetype/custom/ \\;
                             fc-cache -fv
-                            echo "Checking installed fonts:"
-                            fc-list | grep -i "Arial" || echo "CRITICAL: Arial font NOT found!"
                             # ------------------
 
                             TEMPLATE_PATH="\$(pwd)/Markdown/Bestarion.QM.CON.001-Controlled_Document_Convention-2_1/template.tex"
@@ -122,10 +120,10 @@ pipeline {
                             else
                                 echo "Mode: CHANGED_ONLY."
                                 if [ -n "\$GROOVY_DETECTED_FILES" ]; then
-                                    echo "Groovy detected changes from changesets."
+                                    echo "Using files detected by Groovy form ChangeSet."
                                     FILES_LIST="\$GROOVY_DETECTED_FILES"
                                 else
-                                    echo "No files detected in changeset. Checking HEAD~1 fallback..."
+                                    echo "No files in ChangeSet. Checking git diff HEAD~1..."
                                     FILES_LIST=\$(git diff --name-only --diff-filter=AM HEAD~1 HEAD | grep "^\$TARGET/.*\\.md\$" || true)
                                 fi
                             fi
@@ -150,6 +148,9 @@ pipeline {
                                             
                                             LC_ALL=C sed "s/\${ESC}//g; s/\${ESC}\\[[0-9;]*[a-zA-Z]//g" "\${filename}" > "\${filename}.clean"
                                             
+                                            # CAP NHAT PANDOC:
+                                            # 1. Load them goi: calc, array, longtable, booktabs
+                                            # 2. Tao counter 'none' gia de tranh loi
                                             pandoc "\${filename}.clean" \
                                             -f markdown \
                                             -o "\${filename%.md}.pdf" \
@@ -158,7 +159,7 @@ pipeline {
                                             --resource-path=. \
                                             -V mainfont="Arial" \
                                             -V sansfont="Arial" \
-                                            -V header-includes='\\providecommand{\\e}{}\\providecommand{\\s}{\\textbackslash s}'
+                                            -V header-includes='\\usepackage{calc}\\usepackage{array}\\usepackage{longtable}\\usepackage{booktabs}\\newcounter{none}\\providecommand{\\e}{}\\providecommand{\\s}{\\textbackslash s}'
                                             
                                             rm "\${filename}.clean"
                                         )
