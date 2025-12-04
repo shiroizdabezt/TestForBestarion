@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     parameters {
-        choice(name: 'MODE', choices: ['CHANGED_ONLY', 'ALL'], description: 'Chon che do convert: Chi file thay doi (CHANGED_ONLY) hoac Tat ca file (ALL)')
-        string(name: 'TARGET_FOLDER', defaultValue: 'Markdown', description: 'Ten thu muc can quet (Vi du: Markdown)')
+        choice(name: 'MODE', choices: ['CHANGED_ONLY', 'ALL'], description: 'Chon che do convert')
+        string(name: 'TARGET_FOLDER', defaultValue: 'Markdown', description: 'Ten thu muc can quet')
     }
     
     stages {
@@ -24,16 +24,12 @@ pipeline {
                     def manualCauses = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
                     def isManual = manualCauses != null && manualCauses.size() > 0
                     
-                    // Logic moi: Quet toan bo changeLog de tim file va check message
                     def changedFilesBuffer = []
                     def hasDocMessage = false
                     
-                    // Lay tat ca change sets (cac commit trong lan push nay)
                     def changeLogSets = currentBuild.changeSets
                     
                     if (changeLogSets.size() == 0) {
-                         // Truong hop build lan dau hoac Force Build khong co change log
-                         // Fallback check commit cuoi cung
                          def lastMsg = sh(returnStdout: true, script: 'git log -1 --pretty=%s').trim()
                          if (lastMsg ==~ /^doc(\\(.*\\))?: .*/) hasDocMessage = true
                     } else {
@@ -41,13 +37,7 @@ pipeline {
                             def entries = changeLogSets[i].items
                             for (int j = 0; j < entries.length; j++) {
                                 def entry = entries[j]
-                                
-                                // 1. Kiem tra xem co commit nao bat dau bang doc: khong
-                                if (entry.msg ==~ /^doc(\\(.*\\))?: .*/) {
-                                    hasDocMessage = true
-                                }
-                                
-                                // 2. Nhat file .md thay doi
+                                if (entry.msg ==~ /^doc(\\(.*\\))?: .*/) hasDocMessage = true
                                 def files = entry.affectedFiles
                                 for (int k = 0; k < files.size(); k++) {
                                     def file = files[k]
@@ -59,7 +49,6 @@ pipeline {
                         }
                     }
 
-                    // Quyet dinh co chay tiep hay khong
                     if (isManual) {
                         echo "Manual build. Ignoring commit message checks."
                     } else {
@@ -71,7 +60,6 @@ pipeline {
                         }
                     }
                     
-                    // Luu danh sach file tim duoc vao bien moi truong de dung o stage sau
                     env.GROOVY_DETECTED_FILES = changedFilesBuffer.join(" ")
                 }
             }
@@ -81,7 +69,7 @@ pipeline {
             agent {
                 docker { 
                     image 'pandoc/latex:latest' 
-                    args '-u root:root --entrypoint='
+                    args '-u root:root -v /usr/share/fonts:/usr/share/fonts -v /var/cache/fontconfig:/var/cache/fontconfig --entrypoint='
                     reuseNode true
                 }
             }
@@ -94,8 +82,17 @@ pipeline {
                             
                             TARGET="${params.TARGET_FOLDER}"
                             MODE="${params.MODE}"
-
-                            apk add --no-cache ttf-dejavu sed git librsvg || true
+                            
+                            apk add --no-cache sed git librsvg fontconfig || true
+                            
+                            fc-cache -f
+                            
+                            TEMPLATE_PATH="\$(pwd)/Markdown/Bestarion.QM.CON.001-Controlled_Document_Convention-2_1/template.tex"
+                            
+                            if [ ! -f "\$TEMPLATE_PATH" ]; then
+                                echo "ERROR: Khong tim thay template tai: \$TEMPLATE_PATH"
+                                exit 1
+                            fi
                             
                             git config --global --add safe.directory "*"
                             git config --global user.email "jenkins-bot@localhost"
@@ -126,7 +123,6 @@ pipeline {
                                 echo "Files to process:"
                                 echo "\${FILES_LIST}"
                                 
-                                # Loai bo cac file trung lap (neu 1 file bi sua trong nhieu commit)
                                 FILES_LIST=\$(echo "\${FILES_LIST}" | tr ' ' '\\n' | sort -u)
                                 
                                 echo "\${FILES_LIST}" | while read filepath; do
@@ -142,11 +138,10 @@ pipeline {
                                             LC_ALL=C sed "s/\${ESC}//g; s/\${ESC}\\[[0-9;]*[a-zA-Z]//g" "\${filename}" > "\${filename}.clean"
                                             
                                             pandoc "\${filename}.clean" \
-                                            -f markdown \
                                             -o "\${filename%.md}.pdf" \
+                                            --template="\${TEMPLATE_PATH}" \
                                             --pdf-engine=xelatex \
-                                            -V mainfont="DejaVu Sans" \
-                                            -V geometry:margin=2cm \
+                                            --resource-path=. \
                                             -V header-includes='\\providecommand{\\e}{}\\providecommand{\\s}{\\textbackslash s}'
                                             
                                             rm "\${filename}.clean"

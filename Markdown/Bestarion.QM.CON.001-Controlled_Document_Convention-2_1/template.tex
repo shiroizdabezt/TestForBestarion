@@ -1,26 +1,116 @@
 \documentclass[11pt,a4paper]{article}
 
-% --- CÁC GÓI CẦN THIẾT ---
+% =================================================================
+% --- 1. CÁC GÓI CƠ BẢN & CẤU HÌNH TRANG ---
+% =================================================================
 \usepackage[utf8]{inputenc}
 \usepackage{geometry}
-\usepackage[table]{xcolor} 
-\usepackage{graphicx}
-\usepackage{array}
-\usepackage{longtable}
-\usepackage{fancyhdr}
-\usepackage[english]{babel} 
+\usepackage[english]{babel}
 \usepackage{fontspec}
 
-% --- GÓI ĐỂ CAN THIỆP VÀO LOGIC CỦA PANDOC ---
-\usepackage{etoolbox} 
+% Cấu hình Font chữ (Ưu tiên Arial, nếu không có thì dùng TeX Gyre Heros)
+\IfFontExistsTF{Arial}{
+    \setmainfont{Arial}
+}{
+    \setmainfont{TeX Gyre Heros}
+}
+
+% Xử lý khoảng cách đoạn văn
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% Gói hỗ trợ logic (quan trọng cho việc xử lý Caption)
+\usepackage{etoolbox}
 
 % =================================================================
-% --- CẤU HÌNH CAPTION (CHÚ THÍCH BẢNG) ---
+% --- 2. MÀU SẮC & HEADER / FOOTER ---
+% =================================================================
+\usepackage[table]{xcolor}
+\usepackage{fancyhdr}
+
+% Định nghĩa màu Cam thương hiệu
+\definecolor{brandOrange}{RGB}{237, 125, 49}
+
+% Cấu hình Header và Footer
+\pagestyle{fancy}
+\fancyhf{} 
+
+% Header Trái: Lấy từ biến header_line hoặc Title
+$if(header_line)$
+    \fancyhead[L]{\textcolor{gray}{\small $header_line$}}
+$else$
+    \fancyhead[L]{\textcolor{gray}{\small $title$}}
+$endif$
+
+% Footer Phải: Số trang
+\fancyfoot[R]{\thepage}
+
+% Đường kẻ Header màu xám
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{gray}\leaders\hrule height \headrulewidth\hfill}}
+
+% =================================================================
+% --- 3. CẤU HÌNH BẢNG (TABLE) ---
+% =================================================================
+\usepackage{array}
+\usepackage{longtable}
+
+% Cấu hình độ giãn dòng và khoảng cách
+\renewcommand{\arraystretch}{1.3} 
+\setlength{\extrarowheight}{2pt}
+
+% Tự động căn giữa bảng Longtable
+\setlength{\LTleft}{\fill}
+\setlength{\LTright}{\fill}
+
+% TỰ ĐỘNG TÔ MÀU CAM HÀNG ĐẦU TIÊN
+% Định nghĩa lại lệnh \toprule của Pandoc
+\providecommand{\toprule}{}
+\renewcommand{\toprule}{
+    \hline                      
+    \rowcolor{brandOrange}      
+}
+
+% Định nghĩa các đường kẻ còn lại
+\providecommand{\midrule}{}
+\renewcommand{\midrule}{\hline}
+
+\providecommand{\bottomrule}{}
+\renewcommand{\bottomrule}{\hline}
+
+\providecommand{\endhead}{}
+\providecommand{\endfirsthead}{}
+
+% =================================================================
+% --- 4. CẤU HÌNH HÌNH ẢNH (FIGURE) ---
+% =================================================================
+\usepackage{graphicx}
+\usepackage{float}
+
+% Logic TỰ ĐỘNG THU NHỎ ẢNH (Auto-fit) nếu ảnh lớn hơn khổ giấy
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+\setkeys{Gin}{width=\maxwidth, height=\maxheight, keepaspectratio}
+
+% Ép hình ảnh luôn căn giữa (Centering)
+\let\origfigure\figure
+\let\endorigfigure\endfigure
+\renewenvironment{figure}[1][H] {
+    \origfigure[#1]
+    \centering
+} {
+    \endorigfigure
+}
+
+% =================================================================
+% --- 5. CẤU HÌNH CAPTION (CHÚ THÍCH) ---
 % =================================================================
 \usepackage{caption}
 
-% 1. Cấu hình Style: In đậm Table X, Nội dung in nghiêng
-\captionsetup[table]{
+% Style chung cho cả Bảng và Hình: In đậm Label, Nội dung in nghiêng, nằm dưới
+\captionsetup{
   labelfont={bf, color=black},
   textfont={it},
   labelsep=colon,
@@ -28,7 +118,8 @@
   position=bottom 
 }
 
-% 2. [CHIÊU THỨC] CHUYỂN CAPTION TỪ ĐẦU XUỐNG CUỐI
+% LOGIC ĐẶC BIỆT: ÉP CAPTION CỦA BẢNG LONGTABLE XUỐNG DƯỚI ĐÁY
+% (Mặc định Pandoc để caption ở trên, code này dùng etoolbox để dời xuống dưới)
 \newcommand{\globalTableCaption}{}
 
 \AtBeginEnvironment{longtable}{
@@ -36,7 +127,7 @@
   \let\OldCaption\caption 
   \renewcommand{\caption}[2][]{
      \renewcommand{\globalTableCaption}{##2}
-     % Lệnh quan trọng: Ghi nhận caption vào danh sách List of Tables
+     % Ghi nhận vào List of Tables
      \addcontentsline{lot}{table}{\numberline{\thetable}##2}
   }
 }
@@ -49,33 +140,71 @@
   }
 }
 
-% 3. CĂN GIỮA BẢNG LONGTABLE
-\setlength{\LTleft}{\fill}
-\setlength{\LTright}{\fill}
-
 % =================================================================
-% --- CẤU HÌNH MỤC LỤC & DANH SÁCH BẢNG (TOC & LOT) ---
+% --- 6. CẤU HÌNH MỤC LỤC (TOC, LOT, LOF) ---
 % =================================================================
 \usepackage{tocloft}
+
+% Ép trang mục lục phải hiện Header/Footer
 \tocloftpagestyle{fancy} 
 
-% --- 1. CẤU HÌNH TABLE OF CONTENT (MỤC LỤC CHÍNH) ---
-\definecolor{brandOrange}{RGB}{237, 125, 49}
+% --- A. MỤC LỤC CHÍNH (TABLE OF CONTENT) ---
 \renewcommand{\cfttoctitlefont}{\color{brandOrange}\Huge\bfseries\sffamily\MakeUppercase}
 \renewcommand{\cftsecfont}{\sffamily}
 \renewcommand{\cftsubsecfont}{\sffamily}
 \renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
 
-% --- 2. [MỚI] CẤU HÌNH LIST OF TABLES (MỤC LỤC BẢNG) ---
-% Định dạng tiêu đề "INDEX OF TABLES" giống hệt "TABLE OF CONTENT"
+% --- B. MỤC LỤC BẢNG (LIST OF TABLES) ---
 \renewcommand{\cftlottitlefont}{\color{brandOrange}\Huge\bfseries\sffamily\MakeUppercase}
-% Định dạng font chữ cho các dòng trong danh sách bảng
 \renewcommand{\cfttabfont}{\sffamily}
 \renewcommand{\cfttabpagefont}{\sffamily}
 \renewcommand{\cfttableader}{\cftdotfill{\cftdotsep}}
 
+% --- C. MỤC LỤC HÌNH ẢNH (LIST OF FIGURES) ---
+\renewcommand{\cftloftitlefont}{\color{brandOrange}\Huge\bfseries\sffamily\MakeUppercase}
+\renewcommand{\cftfigfont}{\sffamily}
+\renewcommand{\cftfigpagefont}{\sffamily}
+\renewcommand{\cftfigleader}{\cftdotfill{\cftdotsep}}
 
-% SỬA LỖI HYPERTARGET
+% =================================================================
+% --- 7. CÁC LỆNH CHÈN THỦ CÔNG (CUSTOM COMMANDS) ---
+% =================================================================
+
+% Lệnh tạo Tiêu đề giả (Dùng cho Document Control)
+\newcommand{\customTitle}[1]{
+    \par\noindent 
+    {\color{brandOrange}\Huge\bfseries\sffamily\MakeUppercase{#1}}
+    \vspace{0.5cm} 
+    \par
+}
+
+% Lệnh chèn Mục Lục Chính
+\newcommand{\insertTOC}{
+    \newpage
+    \renewcommand{\contentsname}{TABLE OF CONTENT} 
+    \tableofcontents
+    \newpage
+}
+
+% Lệnh chèn Danh Sách Bảng
+\newcommand{\insertListTables}{
+    \newpage
+    \renewcommand{\listtablename}{INDEX OF TABLES} 
+    \listoftables
+    \newpage
+}
+
+% Lệnh chèn Danh Sách Hình Ảnh
+\newcommand{\insertListFigures}{
+    \newpage
+    \renewcommand{\listfigurename}{INDEX OF FIGURES} 
+    \listoffigures
+    \newpage
+}
+
+% =================================================================
+% --- 8. HYPERLINKS & METADATA ---
+% =================================================================
 \usepackage[unicode=true]{hyperref}
 \hypersetup{
     colorlinks=true,
@@ -86,112 +215,47 @@
     pdfpagemode=FullScreen,
 }
 
-% --- CÁC CẤU HÌNH KHÁC ---
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-
-\IfFontExistsTF{Arial}{
-    \setmainfont{Arial}
-}{
-    \setmainfont{TeX Gyre Heros}
-}
-
 % =================================================================
-% --- CẤU HÌNH BẢNG TỰ ĐỘNG TÔ MÀU CAM HÀNG ĐẦU TIÊN ---
+% --- 9. TRANG BÌA (TITLE PAGE) ---
 % =================================================================
-
-\renewcommand{\arraystretch}{1.3} 
-\setlength{\extrarowheight}{2pt}
-
-\providecommand{\toprule}{}
-\renewcommand{\toprule}{
-    \hline                      
-    \rowcolor{brandOrange}      
-}
-
-\providecommand{\midrule}{}
-\renewcommand{\midrule}{\hline}
-
-\providecommand{\bottomrule}{}
-\renewcommand{\bottomrule}{\hline}
-
-\providecommand{\endhead}{}
-\providecommand{\endfirsthead}{}
-
-% =================================================================
-
-% --- ĐỊNH NGHĨA CÁC LỆNH CHÈN THỦ CÔNG ---
-
-% 1. Tiêu đề giả (cho Document Control)
-\newcommand{\customTitle}[1]{
-    \par\noindent 
-    {\color{brandOrange}\Huge\bfseries\sffamily\MakeUppercase{#1}}
-    \vspace{0.5cm} 
-    \par
-}
-
-% 2. Chèn Mục Lục Chính
-\newcommand{\insertTOC}{
-    \newpage
-    \renewcommand{\contentsname}{TABLE OF CONTENT} 
-    \tableofcontents
-    \newpage
-}
-
-% 3. [MỚI] Chèn Danh Sách Bảng
-\newcommand{\insertListTables}{
-    \newpage
-    \renewcommand{\listtablename}{INDEX OF TABLES} % Đổi tên thành INDEX OF TABLES
-    \listoftables
-    \newpage
-}
-
-% --- THIẾT KẾ TRANG BÌA ---
 \renewcommand{\maketitle}{
     \begin{titlepage}
         \newgeometry{top=3cm, bottom=3cm, left=2.5cm, right=2.5cm}
         \centering
         \vspace*{1cm}
+        % Logic chèn Logo
         \IfFileExists{logo.jpeg}{\includegraphics[width=4cm]{logo.jpeg}}{
             \IfFileExists{logo.png}{\includegraphics[width=4cm]{logo.png}}{
                 \begin{center}\fbox{\parbox[c][2cm]{4cm}{\centering LOGO MISSING}}\end{center}
             }
         }
         \vspace{0.5cm} 
+        
+        % Tiêu đề chính
         {\color{brandOrange} \fontsize{30}{75}\selectfont $title$ \par}
         $if(subtitle)$ \vspace{1.3cm} {\fontsize{24}{28}\selectfont $subtitle$ \par} $endif$
+        
         \vfill 
         \raggedright
         \renewcommand{\arraystretch}{1.5}
+        
+        % Bảng thông tin trang bìa
         \begin{tabular}{ll}
             \textbf{Security classification:} & $security$ \\
             \textbf{Document code:} & $doc_code$ \\
             \textbf{Last updated by:} & $updated_by$ \\
             \textbf{Effective date:} & $effective_date$ \\
             \textbf{Version:} & $version$ \\
+            % Dùng detokenize để tránh lỗi ký tự đặc biệt trong ID
             \textbf{Template ID:} & \detokenize{$template_id$} \\
         \end{tabular}
         \restoregeometry
     \end{titlepage}
 }
 
-% --- CẤU HÌNH HEADER VÀ FOOTER ---
-\pagestyle{fancy}
-\fancyhf{} 
-
-$if(header_line)$
-    \fancyhead[L]{\textcolor{gray}{\small $header_line$}}
-$else$
-    \fancyhead[L]{\textcolor{gray}{\small $title$}}
-$endif$
-
-\fancyfoot[R]{\thepage}
-
-\renewcommand{\headrulewidth}{0.4pt}
-\renewcommand{\headrule}{\hbox to\headwidth{\color{gray}\leaders\hrule height \headrulewidth\hfill}}
-
-
-% --- BẮT ĐẦU VĂN BẢN ---
+% =================================================================
+% --- 10. NỘI DUNG CHÍNH ---
+% =================================================================
 \begin{document}
 \maketitle 
 

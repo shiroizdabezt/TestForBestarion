@@ -22,7 +22,9 @@ toc: false
 
 \insertTOC  
 
-\insertListTables
+\insertListTables  
+
+\insertListFigures
 
 # **Introduction**
 
@@ -124,3 +126,9 @@ Those numbers are separated by a underscore ("\_").
 |  | QM.POL.001-Quality_Manual-1_0_1 | The first draft version after the first baseline               |
 |  | QM.POL.001-Quality_Manual-1_1   | The minor baseline of the document, based on<br>version 1.0    |
 |  | QM.POL.001-Quality_Manual-2_0   | The major baseline of the document, based on<br>version 1.x    |
+
+![Hinh so 1](./_page_13_Picture_7.jpeg)
+
+- aouwhfuahfuawhfu
+
+![Hinh so 2](./_page_14_Figure_1.jpeg)
