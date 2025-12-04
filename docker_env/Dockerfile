@@ -206,6 +206,7 @@ tlmgr install \
     soul \
     subfig \
     tools \
+    tocloft \
     unicode-math \
     upquote \
     xcolor \
