@@ -167,9 +167,6 @@ pipeline {
                                             --template="\${TEMPLATE_PATH}" \
                                             --pdf-engine=xelatex \
                                             --resource-path=. \
-                                            -V mainfont="Arial" \
-                                            -V sansfont="Arial" \
-                                            -V header-includes='\\usepackage{calc}\\usepackage{array}\\usepackage{longtable}\\usepackage{booktabs}\\newcounter{none}\\providecommand{\\e}{}\\providecommand{\\s}{\\textbackslash s}'
                                             
                                             rm "\${filename}.clean"
                                         )
