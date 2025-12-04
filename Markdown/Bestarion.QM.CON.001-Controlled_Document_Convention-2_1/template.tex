@@ -141,6 +141,27 @@ $endif$
 }
 
 % =================================================================
+% --- 5.1. BỔ SUNG FIX LỖI (CHÈN VÀO ĐÂY) ---
+% =================================================================
+% Fix lỗi: ! LaTeX Error: File 'tocloft.sty' not found.
+% (Đã có \usepackage{tocloft} ở mục 6 rồi, nhưng cần chắc chắn các gói phụ trợ)
+\usepackage{calc}  % Fix lỗi tính toán chiều rộng bảng
+
+% Fix lỗi: ! LaTeX Error: No counter 'none' defined.
+% Pandoc đôi khi sinh ra code tham chiếu đến counter 'none' khi xử lý bảng phức tạp
+\newcounter{none}
+
+% Định nghĩa các lệnh đặc biệt mà Pandoc có thể sinh ra nhưng template thiếu
+\providecommand{\e}{}  % Fix lỗi \e (escape char)
+\providecommand{\s}{\textbackslash s} % Fix lỗi \s (regex)
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% Đảm bảo các gói bảng đã được nạp (Mục 3 bạn đã có longtable, array rồi)
+\usepackage{booktabs} % Để vẽ đường kẻ bảng đẹp hơn (\toprule, \midrule...)
+
+
+% =================================================================
 % --- 6. CẤU HÌNH MỤC LỤC (TOC, LOT, LOF) ---
 % =================================================================
 \usepackage{tocloft}
