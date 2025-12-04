@@ -69,8 +69,7 @@ pipeline {
             agent {
                 docker { 
                     image 'pandoc/latex:latest' 
-                    // SU DUNG MOUNT FONT NHUNG KHONG MOUNT CACHE
-                    // -v /usr/share/fonts:/host_fonts:ro : Mount font tu may chu vao thu muc tam
+                    // Mount font tu may chu (host) vao /host_fonts trong container
                     args '-u root:root -v /usr/share/fonts:/host_fonts:ro --entrypoint='
                     reuseNode true
                 }
@@ -87,24 +86,25 @@ pipeline {
                             
                             apk add --no-cache sed git librsvg fontconfig || true
                             
-                            # --- DEBUG & SETUP FONT ---
+                            # --- BẮT ĐẦU SETUP FONT ---
                             echo "Setting up fonts..."
                             mkdir -p /usr/share/fonts/truetype/custom
                             
-                            # Debug: Kiem tra xem co nhin thay font tu may chu khong
-                            echo "Checking mounted fonts in /host_fonts:"
-                            ls -R /host_fonts | grep -i "arial" | head -n 5 || echo "WARNING: Khong tim thay file Arial nao trong mount!"
+                            # Debug: Kiem tra xem folder mount co file khong
+                            echo "Listing fonts in /host_fonts:"
+                            ls /host_fonts | head -n 5 || echo "Folder /host_fonts empty!"
 
-                            # Copy font: Tim moi file co ten chua 'arial' (khong phan biet hoa thuong)
+                            # Copy font Arial tu thu muc mount vao he thong
+                            # Dung lenh find de tim bat ke file nam o thu muc con nao
                             find /host_fonts -type f -iname "*arial*" -exec cp -L {} /usr/share/fonts/truetype/custom/ \\;
                             
-                            # Tao cache moi (QUAN TRONG: Khong dung cache cua may chu)
+                            # Tao cache font moi
                             fc-cache -fv
                             
-                            # Kiem tra ket qua
-                            echo "Checking available fonts:"
-                            fc-list | grep -i "Arial" || echo "CRITICAL ERROR: Font Arial van chua duoc nhan!"
-                            # --------------------------
+                            # Kiem tra xem Container da nhan dien duoc Arial chua
+                            echo "Checking installed fonts:"
+                            fc-list | grep -i "Arial" || echo "CRITICAL: Arial font NOT found!"
+                            # --- KẾT THÚC SETUP FONT ---
 
                             TEMPLATE_PATH="\$(pwd)/Markdown/Bestarion.QM.CON.001-Controlled_Document_Convention-2_1/template.tex"
                             
@@ -156,7 +156,200 @@ pipeline {
                                             
                                             LC_ALL=C sed "s/\${ESC}//g; s/\${ESC}\\[[0-9;]*[a-zA-Z]//g" "\${filename}" > "\${filename}.clean"
                                             
-                                            # THEM -V sansfont=Arial de fix loi TeX Gyre Heros
+                                            # Them -V sansfont=Arial va mainfont=Arial
+                                            pandoc "\${filename}.clean" \
+                                            -f markdown \
+                                            -o "\${filename%.md}.pdf" \
+                                            --template="\${TEMPLATE_PATH}" \
+                                            --pdf-engine=xelatex \
+                                            --resource-path=. \
+                                            -V mainfont="Arial" \
+                                            -V sansfont="Arial" \
+                                            -V header-includes='\\providecommand{\\e}{}\\providecommand{\\s}{\\textbackslash s}'
+                                            
+                                            rm "\${filename}.clean"
+                                        )
+                                    fi
+                                done
+                                
+                                echo "Checking for changes..."
+                                find "\$TARGET" -name "*.pdf" | xargs git add
+                                
+                                if ! git diff-index --quiet HEAD; then
+                                    echo "Changes detected. Committing and Pushing..."
+                                    git commit -m "chore: auto-generated PDFs (\$MODE)"
+                                    git push origin HEAD:main
+                                else
+                                    echo "No PDF changes detected. Skipping push."
+                                fi
+                            fi
+
+                            chown -R \${ORIG_UID}:\${ORIG_GID} .
+                        """
+                    }
+                }
+            }
+        }
+    }
+}pipeline {
+    agent any
+
+    parameters {
+        choice(name: 'MODE', choices: ['CHANGED_ONLY', 'ALL'], description: 'Chon che do convert')
+        string(name: 'TARGET_FOLDER', defaultValue: 'Markdown', description: 'Ten thu muc can quet')
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: scm.branches,
+                    extensions: [[$class: 'CloneOption', depth: 0, noTags: false, reference: '', shallow: false]],
+                    userRemoteConfigs: scm.userRemoteConfigs
+                ])
+            }
+        }
+        
+        stage('Check Commit Message & Filter') {
+            steps {
+                script {
+                    def manualCauses = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+                    def isManual = manualCauses != null && manualCauses.size() > 0
+                    
+                    def changedFilesBuffer = []
+                    def hasDocMessage = false
+                    
+                    def changeLogSets = currentBuild.changeSets
+                    
+                    if (changeLogSets.size() == 0) {
+                         def lastMsg = sh(returnStdout: true, script: 'git log -1 --pretty=%s').trim()
+                         if (lastMsg ==~ /^doc(\\(.*\\))?: .*/) hasDocMessage = true
+                    } else {
+                        for (int i = 0; i < changeLogSets.size(); i++) {
+                            def entries = changeLogSets[i].items
+                            for (int j = 0; j < entries.length; j++) {
+                                def entry = entries[j]
+                                if (entry.msg ==~ /^doc(\\(.*\\))?: .*/) hasDocMessage = true
+                                def files = entry.affectedFiles
+                                for (int k = 0; k < files.size(); k++) {
+                                    def file = files[k]
+                                    if (file.path.startsWith("${params.TARGET_FOLDER}/") && file.path.endsWith(".md")) {
+                                        changedFilesBuffer.add(file.path)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (isManual) {
+                        echo "Manual build. Ignoring commit message checks."
+                    } else {
+                        if (hasDocMessage) {
+                            echo "Found at least one 'doc:' commit. Proceeding..."
+                        } else {
+                            currentBuild.result = 'ABORTED'
+                            error("Skipping build: No commit in this push starts with 'doc:'")
+                        }
+                    }
+                    
+                    env.GROOVY_DETECTED_FILES = changedFilesBuffer.join(" ")
+                }
+            }
+        }
+        
+        stage('Convert & Push PDF') {
+            agent {
+                docker { 
+                    image 'pandoc/latex:latest' 
+                    // Mount font tu may chu (host) vao /host_fonts trong container
+                    args '-u root:root -v /usr/share/fonts:/host_fonts:ro --entrypoint='
+                    reuseNode true
+                }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'github-key', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
+                    script {
+                        sh """
+                            ORIG_UID=\$(stat -c "%u" .)
+                            ORIG_GID=\$(stat -c "%g" .)
+                            
+                            TARGET="${params.TARGET_FOLDER}"
+                            MODE="${params.MODE}"
+                            
+                            apk add --no-cache sed git librsvg fontconfig || true
+                            
+                            # --- BẮT ĐẦU SETUP FONT ---
+                            echo "Setting up fonts..."
+                            mkdir -p /usr/share/fonts/truetype/custom
+                            
+                            # Debug: Kiem tra xem folder mount co file khong
+                            echo "Listing fonts in /host_fonts:"
+                            ls /host_fonts | head -n 5 || echo "Folder /host_fonts empty!"
+
+                            # Copy font Arial tu thu muc mount vao he thong
+                            # Dung lenh find de tim bat ke file nam o thu muc con nao
+                            find /host_fonts -type f -iname "*arial*" -exec cp -L {} /usr/share/fonts/truetype/custom/ \\;
+                            
+                            # Tao cache font moi
+                            fc-cache -fv
+                            
+                            # Kiem tra xem Container da nhan dien duoc Arial chua
+                            echo "Checking installed fonts:"
+                            fc-list | grep -i "Arial" || echo "CRITICAL: Arial font NOT found!"
+                            # --- KẾT THÚC SETUP FONT ---
+
+                            TEMPLATE_PATH="\$(pwd)/Markdown/Bestarion.QM.CON.001-Controlled_Document_Convention-2_1/template.tex"
+                            
+                            if [ ! -f "\$TEMPLATE_PATH" ]; then
+                                echo "ERROR: Khong tim thay template tai: \$TEMPLATE_PATH"
+                                exit 1
+                            fi
+                            
+                            git config --global --add safe.directory "*"
+                            git config --global user.email "jenkins-bot@localhost"
+                            git config --global user.name "Jenkins PDF Bot"
+                            git remote set-url origin https://\${GIT_USER}:\${GIT_PASS}@github.com/shiroizdabezt/TestForBestarion.git
+
+                            ESC=\$(printf '\\033')
+                            
+                            FILES_LIST=""
+
+                            if [ "\$MODE" = "ALL" ]; then
+                                echo "Mode: ALL. Scanning all files in \$TARGET..."
+                                FILES_LIST=\$(find "\$TARGET" -name "*.md")
+                            else
+                                echo "Mode: CHANGED_ONLY."
+                                if [ -n "\$GROOVY_DETECTED_FILES" ]; then
+                                    echo "Groovy detected changes from changesets."
+                                    FILES_LIST="\$GROOVY_DETECTED_FILES"
+                                else
+                                    echo "No files detected in changeset. Checking HEAD~1 fallback..."
+                                    FILES_LIST=\$(git diff --name-only --diff-filter=AM HEAD~1 HEAD | grep "^\$TARGET/.*\\.md\$" || true)
+                                fi
+                            fi
+
+                            if [ -z "\${FILES_LIST}" ]; then
+                                echo "No files found to process."
+                            else
+                                echo "Files to process:"
+                                echo "\${FILES_LIST}"
+                                
+                                FILES_LIST=\$(echo "\${FILES_LIST}" | tr ' ' '\\n' | sort -u)
+                                
+                                echo "\${FILES_LIST}" | while read filepath; do
+                                    if [ -f "\${filepath}" ]; then
+                                        dir=\$(dirname "\${filepath}")
+                                        filename=\$(basename "\${filepath}")
+                                        
+                                        echo "Processing \${filename} in \${dir}..."
+                                        
+                                        (
+                                            cd "\${dir}" || exit
+                                            
+                                            LC_ALL=C sed "s/\${ESC}//g; s/\${ESC}\\[[0-9;]*[a-zA-Z]//g" "\${filename}" > "\${filename}.clean"
+                                            
+                                            # Them -V sansfont=Arial va mainfont=Arial
                                             pandoc "\${filename}.clean" \
                                             -f markdown \
                                             -o "\${filename%.md}.pdf" \
