@@ -1,9 +1,0 @@
-    - name: Override Jenkins deamon file
-      become: true
-      ansible.builtin.copy:
-        src: "../templates/override.conf"
-        mode: "0600"
-        dest: "/etc/systemd/system/jenkins.service.d/"
-      notify:
-      - Reload Systemd Daemon
-      - Restart Jenkins

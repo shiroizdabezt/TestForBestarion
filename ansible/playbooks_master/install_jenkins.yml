@@ -1,9 +1,0 @@
----
-- name: install jenkins
-  hosts: jenkins-server
-  become: true
-  vars_files:
-    - ../group_vars/master/jenkins_env.yml
-    - ../group_vars/all/jenkins.yml
-  roles:
-    - jenkins_master_role

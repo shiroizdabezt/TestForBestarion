@@ -1,7 +1,0 @@
-    - name: Setup Environment for Jenkins/etc/default/jenkins_env.env
-      ansible.builtin.template:
-        src: ../templates/jenkins_env.j2
-        dest: /etc/default/jenkins_env.env
-        owner: jenkins
-        group: jenkins
-        mode: "0644"
