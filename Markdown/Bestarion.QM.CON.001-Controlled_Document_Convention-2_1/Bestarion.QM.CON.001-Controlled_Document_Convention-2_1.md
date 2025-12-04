@@ -129,6 +129,6 @@ Those numbers are separated by a underscore ("\_").
 
 ![Hinh so 1](./_page_13_Picture_7.jpeg)
 
-- aouwhfuahfuawhfuawd 
+- aouwhfuahfuawhfuawd adawdwa
 
 ![Hinh so 2](./_page_14_Figure_1.jpeg)
