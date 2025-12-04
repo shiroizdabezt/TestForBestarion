@@ -7,12 +7,11 @@ updated_by: "Khoa Nguyen-Dinh"
 effective_date: "Aug 09, 2023"
 version: "2.1"
 # QUAN TRỌNG: Dùng 2 dấu gạch chéo \\ để LaTeX nhận được 1 dấu \
-template_id: "ODT_Base_Template"
+template_id: "ODT_Base\\_Template"
 header_line: "Bestarion.QM.CON.001-Controlled\\_Document\\_Convention-2\\_1"
 toc: false
 booktabs: false
 use_tables: true
-
 changelog:
   - version: "1.0"
     description: "Khởi tạo tài liệu và phê duyệt lần đầu."
@@ -26,6 +25,7 @@ changelog:
     changed_date: "2025-02-10"
     approved: "N/A"
     approval_date: "N/A"
+
 ---
 
 # **Introduction**
@@ -130,6 +130,8 @@ Those numbers are separated by a underscore ("\_").
 |  | QM.POL.001-Quality_Manual-1_0_1 | The first draft version after the first baseline               |
 |  | QM.POL.001-Quality_Manual-1_1   | The minor baseline of the document, based on<br>version 1.0    |
 |  | QM.POL.001-Quality_Manual-2_0   | The major baseline of the document, based on<br>version 1.x    |
+
+: Test figure
 
 ![Hinh so 1](./_page_13_Picture_7.jpeg)
 

@@ -4,7 +4,7 @@
 % --- 1. CÁC GÓI CƠ BẢN & CẤU HÌNH TRANG ---
 % =================================================================
 \usepackage[utf8]{inputenc}
-\usepackage{geometry}
+\usepackage[margin=0.59in]{geometry}
 \usepackage[english]{babel}
 \usepackage{fontspec}
 \usepackage{setspace}
@@ -122,13 +122,6 @@ $endif$
 \definecolor{mediumOrange}{RGB}{250, 206, 156} 
 % Định nghĩa màu Cam nhạt (H3)
 \definecolor{lightOrange}{RGB}{253, 226, 202} 
-
-\providecommand{\toprule}{}
-\providecommand{\midrule}{}
-\providecommand{\bottomrule}{}
-\renewcommand{\toprule}{\relax}
-\renewcommand{\midrule}{\relax}
-\renewcommand{\bottomrule}{\relax}
 
 % =================================================================
 % --- 4. CẤU HÌNH HÌNH ẢNH (FIGURE) ---
@@ -346,12 +339,12 @@ $endif$
 \maketitle 
 
 \clearpage % Bắt đầu phần nội dung chính từ trang mới
-
 % DOCUMENT CONTROL SECTION
 \section*{\fontsize{15}{18}\selectfont \textcolor{orange}{\textbf{DOCUMENT CONTROL}}}
 $if(changelog)$
-\begin{longtable}{|p{0.08\textwidth}|p{0.22\textwidth}|p{0.14\textwidth}|p{0.12\textwidth}|p{0.16\textwidth}|p{0.12\textwidth}|}
+\begin{longtable}{|p{0.09\textwidth}|p{0.22\textwidth}|p{0.14\textwidth}|p{0.12\textwidth}|p{0.16\textwidth}|p{0.12\textwidth}|}
     \hline
+    \rowcolor{brandOrange}
     \textbf{Version}         & \textbf{Change Description} & \textbf{Changed By} & \textbf{Date} & \textbf{Approved By} & \textbf{Date} \\
     \hline
     $for(changelog)$
