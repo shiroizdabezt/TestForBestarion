@@ -69,7 +69,7 @@ pipeline {
             agent {
                 docker { 
                     image 'pandoc/latex:latest' 
-                    args '-u root:root -v /usr/share/fonts:/usr/share/fonts -v /var/cache/fontconfig:/var/cache/fontconfig --entrypoint='
+                    args '-u root:root -v /usr/share/fonts:/host_fonts:ro -v /var/cache/fontconfig:/var/cache/fontconfig --entrypoint='
                     reuseNode true
                 }
             }
