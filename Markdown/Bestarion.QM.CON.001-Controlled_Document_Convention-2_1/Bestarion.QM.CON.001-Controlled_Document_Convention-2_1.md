@@ -7,7 +7,7 @@ updated_by: "Khoa Nguyen-Dinh"
 effective_date: "Aug 09, 2023"
 version: "2.1"
 # QUAN TRỌNG: Dùng 2 dấu gạch chéo \\ để LaTeX nhận được 1 dấu \
-template_id: "ODT_Base\\_Template"
+template_id: "ODT_Base_Template"
 header_line: "Bestarion.QM.CON.001-Controlled\\_Document\\_Convention-2\\_1"
 toc: false
 booktabs: false

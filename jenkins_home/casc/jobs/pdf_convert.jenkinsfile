@@ -118,6 +118,7 @@ pipeline {
                             apt-get update && apt-get install -y git sed librsvg2-bin || true
 
                             TEMPLATE_PATH="\$(pwd)/Markdown/Bestarion.QM.CON.001-Controlled_Document_Convention-2_1/template.tex"
+                            LUA_FILTER_PATH="\$(pwd)/Markdown/Bestarion.QM.CON.001-Controlled_Document_Convention-2_1/convention.lua"
                             if [ ! -f "\$TEMPLATE_PATH" ]; then
                                 echo "ERROR: Khong tim thay template tai: \$TEMPLATE_PATH"
                                 exit 1
@@ -167,6 +168,7 @@ pipeline {
                                             --template="\${TEMPLATE_PATH}" \
                                             --pdf-engine=xelatex \
                                             --resource-path=. \
+                                            --lua-filter=\$LUA_FILTER_PATH \
                                             
                                             rm "\${filename}.clean"
                                         )
