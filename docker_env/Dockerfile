@@ -127,25 +127,89 @@ rm -rf \
 # Install packages required by pandoc
 tlmgr install \
     --verify-repo=all \
-    --reinstall \
-    # Gói quan trọng cho template (Font, List, Table, Title, Colors, Logic)
-    fontspec \
-    titlesec \
-    makecell \
-    setspace \
+    amsfonts \
+    amsmath \
+    babel \
+    babel-basque \
+    babel-czech \
+    babel-danish \
+    babel-dutch \
+    babel-english \
+    babel-finnish \
+    babel-french \
+    babel-german \
+    babel-hungarian \
+    babel-italian \
+    babel-norsk \
+    babel-polish \
+    babel-portuges \
+    babel-spanish \
+    babel-swedish \
+    beamer \
+    biber \
+    biblatex \
+    bibtex \
+    bidi \
+    bidi \
+    bookmark \
+    booktabs \
     caption \
+    cleveref \
+    csquotes \
+    euler \
+    eurosym \
     fancyvrb \
-    framed \
     float \
-    etoolbox \
+    fontspec \
+    footnotehyper \
+    framed \
+    geometry \
+    graphics \
+    hyperref \
+    hyphen-basque \
+    hyphen-czech \
+    hyphen-danish \
+    hyphen-dutch \
+    hyphen-english \
+    hyphen-finnish \
+    hyphen-french \
+    hyphen-german \
+    hyphen-hungarian \
+    hyphen-italian \
+    hyphen-norwegian \
+    hyphen-polish \
+    hyphen-portuguese \
+    hyphen-spanish \
+    hyphen-swedish \
+    ifmtarg \
+    iftex \
+    latexmk \
+    listings \
+    lm \
+    lm-math \
+    lua-ul \
+    luacode \
+    luacolor \
+    lualatex-math \
+    luatexbase \
+    titlesec \
+    mathspec \
+    memoir \
+    microtype \
+    multirow \
+    natbib \
+    parskip \
+    pgf \
+    selnolig \
+    setspace \
+    soul \
+    subfig \
+    tools \
     unicode-math \
-    xurl \
-    # Các gói Pandoc hay sử dụng
-    biber biblatex csquotes euler eurosym ifmtarg latexmk listings lm-math lua-ul luacode luacolor lualatex-math luatexbase \
-    mathspec memoir microtype multirow parskip pgf selnolig soul subfig tools unicode-math upquote \
-    # Gói ngôn ngữ bạn đã dùng
-    babel-basque babel-czech babel-danish babel-dutch babel-finnish babel-french babel-german babel-hungarian babel-italian babel-norsk babel-polish babel-portuges babel-spanish babel-swedish \
-    hyphen-basque hyphen-czech hyphen-danish hyphen-dutch hyphen-finnish hyphen-french hyphen-german hyphen-hungarian hyphen-italian hyphen-norwegian hyphen-polish hyphen-portuguese hyphen-spanish hyphen-swedish
+    upquote \
+    xcolor \
+    xetex \
+    xurl
 # Reset to the default CTAN mirror, unless a specific mirror had been
 # requested.
 if [ -z "${texlive_mirror_url}" ]; then
