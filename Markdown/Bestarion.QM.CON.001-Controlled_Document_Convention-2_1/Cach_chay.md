@@ -8,3 +8,4 @@ sudo fc-cache -f -v
 ```bash
 pandoc Bestarion.QM.CON.001-Controlled_Document_Convention-2_1.md -o template.pdf --template=template.tex --pdf-engine=xelatex --resource-path=.
 ```
+# lan 2
