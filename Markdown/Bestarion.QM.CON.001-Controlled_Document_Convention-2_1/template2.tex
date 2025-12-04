@@ -28,9 +28,6 @@
 
 
 % >>> THÊM ĐOẠN NÀY ĐỂ FIX LỖI SHADED (PANDOC HIGHLIGHTING) <<<
-$if(highlighting-macros)$
-$highlighting-macros$
-$endif$
 % >>> KẾT THÚC ĐOẠN THÊM <<<
 
 % Cấu hình Font chữ (Ưu tiên Arial, nếu không có thì dùng TeX Gyre Heros)
@@ -58,11 +55,7 @@ $endif$
 \fancyhf{} 
 
 % Header Trái: Lấy từ biến header_line hoặc Title
-$if(header_line)$
-    \fancyhead[L]{\textcolor{gray}{\small $header_line$}}
-$else$
-    \fancyhead[L]{\textcolor{gray}{\small $title$}}
-$endif$
+    \fancyhead[L]{\textcolor{gray}{\small Bestarion.QM.CON.001-Controlled\_Document\_Convention-2\_1}}
 
 % Footer Phải: Số trang
 \fancyfoot[R]{\thepage}
@@ -104,7 +97,7 @@ $endif$
 \setlist[itemize,1]{label=\raisebox{-0.9ex}{\textcolor{black}{\Huge\textbullet}}}
 
 % Cấp 2: Hình vuông full đen (\blacksquare) - Cần gói amssymb đã nạp ở trên
-\setlist[itemize,2]{label=\textcolor{black}{\tiny$$\blacksquare$$}}
+\setlist[itemize,2]{label=\textcolor{black}{\tiny$\blacksquare$}}
 
 % Cấp 3: Dấu tròn thường (\textbullet)
 \setlist[itemize,3]{label=\textbullet}
@@ -282,20 +275,22 @@ $endif$
         }
         \vspace{0.5cm} 
         
-        {\color{brandOrange} \fontsize{30}{75}\selectfont $title$ \par}
-        $if(subtitle)$ \vspace{1.3cm} {\fontsize{24}{28}\selectfont $subtitle$ \par} $endif$
+        {\color{brandOrange} \fontsize{30}{75}\selectfont CONTROLLED
+DOCUMENT CONVENTION \par}
+         \vspace{1.3cm} {\fontsize{24}{28}\selectfont QM \par} 
         
         \vfill 
         \raggedright
         \renewcommand{\arraystretch}{1.5}
         
         \begin{tabular}{ll}
-            \textbf{Security classification:} & \detokenize{$security$} \\      % <-- THÊM \detokenize
-            \textbf{Document code:} & \detokenize{$doc_code$} \\              % <-- THÊM \detokenize
-            \textbf{Last updated by:} & \detokenize{$updated_by$} \\                        % Tên người thường ít khi có _, nhưng nếu có hãy bọc luôn
-            \textbf{Effective date:} & \detokenize{$effective_date$} \\
-            \textbf{Version:} & \detokenize{$version$} \\
-            \textbf{Template ID:} & \detokenize{$template_id$} \\
+            \textbf{Security classification:} & \detokenize{INTERNAL} \\      % <-- THÊM \detokenize
+            \textbf{Document code:} & \detokenize{Bestarion.QM.CON.001} \\              % <-- THÊM \detokenize
+            \textbf{Last updated by:} & \detokenize{Khoa
+Nguyen-Dinh} \\                        % Tên người thường ít khi có _, nhưng nếu có hãy bọc luôn
+            \textbf{Effective date:} & \detokenize{Aug 09, 2023} \\
+            \textbf{Version:} & \detokenize{2.1} \\
+            \textbf{Template ID:} & \detokenize{ODT\_Base\_Template} \\
         \end{tabular}
         \restoregeometry
     \end{titlepage}
@@ -345,27 +340,15 @@ $endif$
 \begin{document}
 \maketitle 
 
-\clearpage % Bắt đầu phần nội dung chính từ trang mới
+% 1. TIÊU ĐỀ MỤC (Lấy từ CONTROLLED DOCUMENT
+CONVENTION - Tên tài liệu đầy đủ)
+\customTitle{CONTROLLED DOCUMENT CONVENTION}
 
-% DOCUMENT CONTROL SECTION
-\section*{\fontsize{15}{18}\selectfont \textcolor{orange}{\textbf{DOCUMENT CONTROL}}}
-$if(changelog)$
-\begin{longtable}{|p{0.08\textwidth}|p{0.22\textwidth}|p{0.14\textwidth}|p{0.12\textwidth}|p{0.16\textwidth}|p{0.12\textwidth}|}
-    \hline
-    \textbf{Version}         & \textbf{Change Description} & \textbf{Changed By} & \textbf{Date} & \textbf{Approved By} & \textbf{Date} \\
-    \hline
-    $for(changelog)$
-    $changelog.version$      &
-    $changelog.description$  &
-    $changelog.changed_by$   &
-    $changelog.changed_date$ &
-    $changelog.approved$     &
-    $changelog.approval_date$                                                                                                           \\
-    \hline
-    $endfor$
-\end{longtable}
-$endif$
-\clearpage % Tách bảng khỏi mục lục
+% 2. BẢNG KIỂM SOÁT (Lấy từ )
+    \begin{ReviewTable}{DOCUMENT CONTROL TABLE} % Fallback nếu không có biến
+    % ... (Dữ liệu bảng sẽ được chèn từ Markdown)
+\end{ReviewTable}
+\clearpage 
 
 % Các mục lục (TOC, LOT, LOF)
 \insertTOC  
@@ -373,6 +356,250 @@ $endif$
 \insertListFigures
 
 % NỘI DUNG CHÍNH TỪ MARKDOWN
-$body$
+\hypertarget{introduction}{%
+\section{\texorpdfstring{\textbf{Introduction}}{Introduction}}\label{introduction}}
+
+\hypertarget{purpose}{%
+\subsection{\texorpdfstring{\textbf{Purpose}}{Purpose}}\label{purpose}}
+
+This document specifies conventions for naming and version of documents
+which are in scope of QMS \& ISMS.
+
+\hypertarget{scope}{%
+\subsection{\texorpdfstring{\textbf{Scope}}{Scope}}\label{scope}}
+
+This convention is applied to only the controlled documents, which are
+internally created by Bestarion.
+
+Following documents are outside the scope of this convention:
+
+\begin{itemize}
+\tightlist
+\item
+  Uncontrolled documents and records
+\item
+  Documents obtained from external sources (such as, government
+  regulatory,\ldots)
+\item
+  Project documents to follow customers' conventions, regarding naming
+  and/ or version
+\end{itemize}
+
+\hypertarget{definition-and-abbreviation}{%
+\subsection{\texorpdfstring{\textbf{Definition And
+Abbreviation}}{Definition And Abbreviation}}\label{definition-and-abbreviation}}
+
+\begin{itemize}
+\item
+  BoD: Board of Directors
+\item
+  QM: Quality Management
+\item
+  Controlled Document: A document with its versions to be controlled, in
+  order to ensure appropriate
+\end{itemize}
+
+access to correct content. When a controlled document is to be changed,
+its new
+
+version must be controlled via appropriate review and approval
+procedures
+
+Document: Information and its supporting medium (text files, images,
+video, voice,\ldots)
+
+Record: Is a kind of document which is resulted from performing
+operations
+
+\hypertarget{references}{%
+\subsection{\texorpdfstring{\textbf{References}}{References}}\label{references}}
+
+\begin{itemize}
+\tightlist
+\item
+  {[}1{]} Document\_Responsibility\_Authority\_Standard
+\item
+  {[}2{]} Control\_Of\_Documented\_Information
+\end{itemize}
+
+\hypertarget{regulation}{%
+\section{\texorpdfstring{\textbf{Regulation}}{Regulation}}\label{regulation}}
+
+The objective for document owner when creating a new document is no more
+than 1 easily identifiable error in 5 A4 pages
+
+\hypertarget{naming-of-controlled-non-record-documents}{%
+\section{\texorpdfstring{\textbf{Naming Of Controlled Non-record
+Documents}}{Naming Of Controlled Non-record Documents}}\label{naming-of-controlled-non-record-documents}}
+
+When a controlled document is not a record, the file name shall follow
+below format:
+
+\textbf{{[}Document Code{]}-{[}Document Name{]}-{[}Version Number{]}}
+
+Each part is separated by a hyphen.
+
+\hypertarget{document-code}{%
+\subsection{\texorpdfstring{\textbf{Document
+Code}}{Document Code}}\label{document-code}}
+
+The document code can be used as a short name to refer to the document.
+
+Document Code is constructed by following format:
+
+\textbf{{[}Unit Code{]}.{[}Document Type Code{]}.{[}Ordinal Number{]}}
+
+Each part is separated by a stop (`.').
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Unit Code}: Code representing the unit
+
+  \begin{itemize}
+  \tightlist
+  \item
+    In case unit is a department or portfolio: refer to corporate
+    organizational structure for the corresponding code
+
+    \begin{itemize}
+    \tightlist
+    \item
+      Bestarion
+
+      \begin{itemize}
+      \tightlist
+      \item
+        IT: Information Technology Department
+      \end{itemize}
+    \end{itemize}
+  \item
+    In case unit is a sub-group within a department or a portfolio:
+    refer to the department/ portfolio charter for the corresponding
+    code
+  \item
+    In case document apply in a sub-company, unit code may be included
+    company name
+  \end{itemize}
+\item
+  \textbf{Document Type Code}: Refer to
+  \protect\hyperlink{page-5-8}{{[}1{]}} for the codes of document types
+\item
+  \textbf{Ordinal Number} (3 digits): A unique number to differentiate
+  documents in the same document type, belonging to the same unit
+\end{itemize}
+
+\emph{Examples: HR.GUI.234, QM.POL.001},
+\emph{Bestarion.IT.POL.001}\ldots{}
+
+\hypertarget{document-name}{%
+\subsection{\texorpdfstring{\textbf{Document
+Name}}{Document Name}}\label{document-name}}
+
+Document name is a unique name of document, with following convention:
+
+\begin{itemize}
+\tightlist
+\item
+  The first letter of each word shall be in capital
+\item
+  Words are separated by underscore character (`\_')
+\end{itemize}
+
+\emph{Examples: Project\_Planning, Risk\_Management.}
+
+Document name should not include the type of document, since the type is
+already known in Document Code part \protect\hyperlink{page-5-1}{(3.1.)}
+
+\hypertarget{version-number}{%
+\subsection{\texorpdfstring{\textbf{Version
+Number}}{Version Number}}\label{version-number}}
+
+A version number is constructed of 3 numbers: ``Major version number'',
+``Minor version number'' and ``Draft number''.
+
+Those numbers are separated by a underscore (``\_'').
+
+\textbf{{[}Major Version Number{]}\_{[}Minor Version Number{]}\_{[}Draft
+Number{]}}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Major version number}: Started from 0. The first baseline has
+  major version equals 1. Major version is increased when there are
+  changes to the document content, which affect to the original meaning
+  of the document
+\item
+  \textbf{Minor version number}: Started from 0. Minor version is
+  increased when there are only changes to enhance or correct the
+  content, while the original meaning is intact
+\item
+  \textbf{Draft number}: Started from 1. This number is increased when a
+  draft is updated and re-submitted for review. A document may pass
+  through several draft updates until it is baseline
+\item
+  \textbf{Note:} Before the first baseline of each document, draft
+  version number for document is constructed of 2 numbers: ``Major
+  version number'' and ``Draft number''
+\item
+  \emph{Examples:}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \emph{QM.POL.001-Quality\_Manual-0\_1 The first draft of policy
+    `Quality Manual', issued by QM}
+  \item
+    \emph{QM.POL.001-Quality\_Manual-0\_2 The second draft, re-submitted
+    for review}
+  \end{itemize}
+\end{itemize}
+
+\begin{longtable}[]{@{}lll@{}}
+\caption{Testing image embedding}\tabularnewline
+\toprule
+\begin{minipage}[b]{0.03\columnwidth}\raggedright
+\strut
+\end{minipage} & \begin{minipage}[b]{0.30\columnwidth}\raggedright
+QM.POL.001-Quality\_Manual-1\_0\strut
+\end{minipage} & \begin{minipage}[b]{0.58\columnwidth}\raggedright
+The first baseline of policy `Quality Manual', issuedby QM\strut
+\end{minipage}\tabularnewline
+\midrule
+\endfirsthead
+\toprule
+\begin{minipage}[b]{0.03\columnwidth}\raggedright
+\strut
+\end{minipage} & \begin{minipage}[b]{0.30\columnwidth}\raggedright
+QM.POL.001-Quality\_Manual-1\_0\strut
+\end{minipage} & \begin{minipage}[b]{0.58\columnwidth}\raggedright
+The first baseline of policy `Quality Manual', issuedby QM\strut
+\end{minipage}\tabularnewline
+\midrule
+\endhead
+\begin{minipage}[t]{0.03\columnwidth}\raggedright
+\strut
+\end{minipage} & \begin{minipage}[t]{0.30\columnwidth}\raggedright
+QM.POL.001-Quality\_Manual-1\_0\_1\strut
+\end{minipage} & \begin{minipage}[t]{0.58\columnwidth}\raggedright
+The first draft version after the first baseline\strut
+\end{minipage}\tabularnewline
+\begin{minipage}[t]{0.03\columnwidth}\raggedright
+\strut
+\end{minipage} & \begin{minipage}[t]{0.30\columnwidth}\raggedright
+QM.POL.001-Quality\_Manual-1\_1\strut
+\end{minipage} & \begin{minipage}[t]{0.58\columnwidth}\raggedright
+The minor baseline of the document, based onversion 1.0\strut
+\end{minipage}\tabularnewline
+\begin{minipage}[t]{0.03\columnwidth}\raggedright
+\strut
+\end{minipage} & \begin{minipage}[t]{0.30\columnwidth}\raggedright
+QM.POL.001-Quality\_Manual-2\_0\strut
+\end{minipage} & \begin{minipage}[t]{0.58\columnwidth}\raggedright
+The major baseline of the document, based onversion 1.x\strut
+\end{minipage}\tabularnewline
+\bottomrule
+\end{longtable}
 
 \end{document}

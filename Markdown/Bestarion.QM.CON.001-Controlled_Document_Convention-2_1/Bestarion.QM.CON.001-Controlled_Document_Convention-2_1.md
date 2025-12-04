@@ -13,6 +13,19 @@ toc: false
 booktabs: false
 use_tables: true
 
+changelog:
+  - version: "1.0"
+    description: "Khởi tạo tài liệu và phê duyệt lần đầu."
+    changed_by: "KhoaND"
+    changed_date: "2025-01-01"
+    approved: "CEO/TienDD"
+    approval_date: "2025-01-05"
+  - version: "1.1"
+    description: "Cập nhật phần quy trình 3.2."
+    changed_by: "MinhNT"
+    changed_date: "2025-02-10"
+    approved: "N/A"
+    approval_date: "N/A"
 ---
 
 # **Introduction**
