@@ -4,6 +4,7 @@ pipeline {
     parameters {
         choice(name: 'MODE', choices: ['CHANGED_ONLY', 'ALL'], description: 'Chon che do convert')
         string(name: 'TARGET_FOLDER', defaultValue: 'Markdown', description: 'Ten thu muc can quet')
+        booleanParam(name: 'FORCE_REBUILD_IMAGE', defaultValue: false, description: 'Check vao neu ban muon bat buoc build lai Docker Image')
     }
     
     stages {
@@ -17,6 +18,35 @@ pipeline {
                 ])
             }
         }
+
+        // --- STAGE MOI: TU DONG BUILD IMAGE ---
+        stage('Prepare Docker Image') {
+            steps {
+                script {
+                    def imageName = "my-custom-pandoc:latest"
+                    // Kiem tra xem image da ton tai chua
+                    def imageExists = sh(script: "docker images -q ${imageName}", returnStdout: true).trim()
+                    
+                    if (!imageExists || params.FORCE_REBUILD_IMAGE) {
+                        echo "Image '${imageName}' not found or Force Rebuild selected. Building now..."
+                        echo "This may take 5-10 minutes..."
+                        
+                        // Chuyen vao thu muc docker_env de build
+                        dir('docker_env') {
+                            // Kiem tra xem file Dockerfile co ton tai khong
+                            if (fileExists('Dockerfile')) {
+                                sh "docker build -t ${imageName} ."
+                            } else {
+                                error("CRITICAL: Khong tim thay Dockerfile trong folder docker_env/ ! Hay commit no len Git.")
+                            }
+                        }
+                    } else {
+                        echo "Image '${imageName}' found. Skipping build."
+                    }
+                }
+            }
+        }
+        // --------------------------------------
         
         stage('Check Commit Message & Filter') {
             steps {
@@ -26,7 +56,6 @@ pipeline {
                     
                     def changedFilesBuffer = []
                     def hasDocMessage = false
-                    
                     def changeLogSets = currentBuild.changeSets
                     
                     if (changeLogSets.size() == 0) {
@@ -59,7 +88,6 @@ pipeline {
                             error("Skipping build: No commit in this push starts with 'doc:'")
                         }
                     }
-                    
                     env.GROOVY_DETECTED_FILES = changedFilesBuffer.join(" ")
                 }
             }
@@ -68,8 +96,10 @@ pipeline {
         stage('Convert & Push PDF') {
             agent {
                 docker { 
-                    image 'pandoc/latex:latest' 
-                    args '-u root:root -v /usr/share/fonts:/host_fonts:ro --entrypoint='
+                    // SU DUNG IMAGE VUA DUOC BUILD O TREN
+                    image 'my-custom-pandoc:latest' 
+                    // Khong can mount font nua, vi da co trong image
+                    args '-u root:root --entrypoint='
                     reuseNode true
                 }
             }
@@ -83,22 +113,11 @@ pipeline {
                             TARGET="${params.TARGET_FOLDER}"
                             MODE="${params.MODE}"
                             
-                            apk add --no-cache sed git librsvg fontconfig || true
-                            
-                            # --- FIX LOI LATEX TABLE & CALC ---
-                            # 'tools' chua cac goi: array, calc, longtable, tabularx, verbatim...
-                            tlmgr install tocloft tools
-                            # ----------------------------------
-                            
-                            # --- SETUP FONT ---
-                            echo "Setting up fonts..."
-                            mkdir -p /usr/share/fonts/truetype/custom
-                            find /host_fonts -type f -iname "*arial*" -exec cp -L {} /usr/share/fonts/truetype/custom/ \\;
-                            fc-cache -fv
-                            # ------------------
+                            # Image nay la Ubuntu nen dung apt-get
+                            # Nhung vi da cai san trong Dockerfile nen chi can git, sed
+                            apt-get update && apt-get install -y git sed librsvg2-bin || true
 
                             TEMPLATE_PATH="\$(pwd)/Markdown/Bestarion.QM.CON.001-Controlled_Document_Convention-2_1/template.tex"
-                            
                             if [ ! -f "\$TEMPLATE_PATH" ]; then
                                 echo "ERROR: Khong tim thay template tai: \$TEMPLATE_PATH"
                                 exit 1
@@ -110,7 +129,6 @@ pipeline {
                             git remote set-url origin https://\${GIT_USER}:\${GIT_PASS}@github.com/shiroizdabezt/TestForBestarion.git
 
                             ESC=\$(printf '\\033')
-                            
                             FILES_LIST=""
 
                             if [ "\$MODE" = "ALL" ]; then
@@ -132,19 +150,15 @@ pipeline {
                             else
                                 echo "Files to process:"
                                 echo "\${FILES_LIST}"
-                                
                                 FILES_LIST=\$(echo "\${FILES_LIST}" | tr ' ' '\\n' | sort -u)
                                 
                                 echo "\${FILES_LIST}" | while read filepath; do
                                     if [ -f "\${filepath}" ]; then
                                         dir=\$(dirname "\${filepath}")
                                         filename=\$(basename "\${filepath}")
-                                        
                                         echo "Processing \${filename} in \${dir}..."
-                                        
                                         (
                                             cd "\${dir}" || exit
-                                            
                                             LC_ALL=C sed "s/\${ESC}//g; s/\${ESC}\\[[0-9;]*[a-zA-Z]//g" "\${filename}" > "\${filename}.clean"
                                             
                                             pandoc "\${filename}.clean" \
