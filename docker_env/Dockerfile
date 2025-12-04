@@ -223,7 +223,6 @@ chmod -R o+w /opt/texlive/texdir/texmf-var
 EOF
 
 WORKDIR /data
-RUN tlmgr install tocloft tools
 
 # COPY FONT TU THU MUC fonts (cung cap voi Dockerfile)
 COPY fonts/* /usr/share/fonts/truetype/custom/
