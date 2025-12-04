@@ -192,6 +192,7 @@ tlmgr install \
     luacolor \
     lualatex-math \
     luatexbase \
+    longtable \
     mathspec \
     memoir \
     microtype \
@@ -204,6 +205,8 @@ tlmgr install \
     soul \
     subfig \
     tools \
+    titlesec \
+    makecell \
     unicode-math \
     upquote \
     xcolor \
