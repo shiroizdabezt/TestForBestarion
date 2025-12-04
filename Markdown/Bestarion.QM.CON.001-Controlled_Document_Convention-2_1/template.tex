@@ -8,6 +8,18 @@
 \usepackage[english]{babel}
 \usepackage{fontspec}
 
+% ... (Các lệnh usepackage khác)
+\usepackage{color}
+\usepackage{fancyvrb}
+\usepackage{framed}
+
+% >>> THÊM ĐOẠN NÀY ĐỂ FIX LỖI SHADED <<<
+$if(highlighting-macros)$
+$highlighting-macros$
+$endif$
+% >>> KẾT THÚC ĐOẠN THÊM <<<
+
+
 % Cấu hình Font chữ (Ưu tiên Arial, nếu không có thì dùng TeX Gyre Heros)
 \IfFontExistsTF{Arial}{
     \setmainfont{Arial}
