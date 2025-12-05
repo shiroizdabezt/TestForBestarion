@@ -3,7 +3,7 @@ pipeline {
 
     parameters {
         choice(name: 'MODE', choices: ['CHANGED_ONLY', 'ALL'], description: 'Chon che do convert')
-        string(name: 'TARGET_FOLDER', defaultValue: 'Markdown/Markdown', description: 'Ten thu muc can quet')
+        string(name: 'TARGET_FOLDER', defaultValue: 'Markdown', description: 'Ten thu muc can quet')
         booleanParam(name: 'FORCE_REBUILD_IMAGE', defaultValue: false, description: 'Check vao neu ban muon bat buoc build lai Docker Image')
     }
     
