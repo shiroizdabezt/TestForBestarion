@@ -22,4 +22,4 @@ scrape_configs:
           app: 'rails_passenger'
 
           # lan 1
-          # lan 2
+          
