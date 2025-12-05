@@ -3,7 +3,7 @@ pipeline {
 
     parameters {
         choice(name: 'MODE', choices: ['CHANGED_ONLY', 'ALL'], description: 'Chon che do convert')
-        string(name: 'TARGET_FOLDER', defaultValue: 'Markdown', description: 'Ten thu muc can quet')
+        string(name: 'TARGET_FOLDER', defaultValue: 'Markdown/Markdown', description: 'Ten thu muc can quet')
         booleanParam(name: 'FORCE_REBUILD_IMAGE', defaultValue: false, description: 'Check vao neu ban muon bat buoc build lai Docker Image')
     }
     
@@ -117,8 +117,13 @@ pipeline {
                             # Nhung vi da cai san trong Dockerfile nen chi can git, sed
                             apt-get update && apt-get install -y git sed librsvg2-bin || true
 
-                            TEMPLATE_PATH="\$(pwd)/Markdown/Bestarion.QM.CON.001-Controlled_Document_Convention-2_1/template.tex"
-                            LUA_FILTER_PATH="\$(pwd)/Markdown/Bestarion.QM.CON.001-Controlled_Document_Convention-2_1/convention.lua"
+                            TEMPLATE_PATH="\$(pwd)/Markdown/Template/template.tex"
+                            LUA_FILTER_PATH="\$(pwd)/Markdown/Template/convention.lua"
+                            OUTPUT_PATH="\$(pwd)/Markdown/PDF/"
+
+                            mkdir -p "\$OUTPUT_PATH"
+                            mkdir -p "\$MARKDOWN_PATH"
+
                             if [ ! -f "\$TEMPLATE_PATH" ]; then
                                 echo "ERROR: Khong tim thay template tai: \$TEMPLATE_PATH"
                                 exit 1
@@ -164,7 +169,7 @@ pipeline {
                                             
                                             pandoc "\${filename}.clean" \
                                             -f markdown \
-                                            -o "\${filename%.md}.pdf" \
+                                            -o "\${OUTPUT_PATH}\${filename%.md}.pdf" \
                                             --template="\${TEMPLATE_PATH}" \
                                             --pdf-engine=xelatex \
                                             --resource-path=. \
