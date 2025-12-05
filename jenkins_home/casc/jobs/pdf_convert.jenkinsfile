@@ -122,7 +122,6 @@ pipeline {
                             OUTPUT_PATH="\$(pwd)/Markdown/PDF/"
 
                             mkdir -p "\$OUTPUT_PATH"
-                            mkdir -p "\$MARKDOWN_PATH"
 
                             if [ ! -f "\$TEMPLATE_PATH" ]; then
                                 echo "ERROR: Khong tim thay template tai: \$TEMPLATE_PATH"
