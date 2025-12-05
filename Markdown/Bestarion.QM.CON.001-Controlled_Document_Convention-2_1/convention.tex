@@ -1,154 +1,146 @@
 \documentclass[11pt,a4paper]{article}
 
 % =================================================================
-% --- 1. CÁC GÓI CƠ BẢN & CẤU HÌNH TRANG ---
+% --- 1. USER CONFIGURATION (CẤU HÌNH SIÊU THAM SỐ) ---
 % =================================================================
+\def\PageLeftMargin{2.5cm}   % Lề trái (Rộng hơn để chứa số thứ tự)
+\def\PageRightMargin{2.5cm}  % Lề phải (Cân bằng để fix lỗi căn giữa)
+\def\PageTopMargin{1.5cm}    
+\def\PageBottomMargin{1.5cm} 
+
+\newlength{\NumberWidth}
+\setlength{\NumberWidth}{1.25cm} 
+
+\def\BrandColorRGB{237, 125, 49} 
+\def\PreferredFont{Arial}           
+\def\FallbackFont{TeX Gyre Heros}   
+
+% =================================================================
+% --- 2. PACKAGES & BASIC SETUP ---
+% =================================================================
+% Quan trọng: Nạp fancyhdr sớm để tránh lỗi undefined control sequence
+\usepackage{fancyhdr} 
 \usepackage[utf8]{inputenc}
-\usepackage[margin=0.59in]{geometry}
 \usepackage[english]{babel}
 \usepackage{fontspec}
 \usepackage{setspace}
-
-% Các gói hỗ trợ code block và màu sắc
-\usepackage{color}
-\usepackage{fancyvrb}
-\usepackage{framed}
-
-% Các gói toán học và bảng
-\usepackage{amsmath}
-\usepackage{amssymb}
 \usepackage{calc}
-\usepackage{array}
-\usepackage{longtable}
-\usepackage{float}
-
-% Gói hỗ trợ logic
 \usepackage{etoolbox}
+\usepackage[table]{xcolor} % Nạp xcolor với option table
 
+\usepackage[
+  left=\PageLeftMargin,
+  right=\PageRightMargin,
+  top=\PageTopMargin, 
+  bottom=\PageBottomMargin
+]{geometry}
 
+\IfFontExistsTF{\PreferredFont}{
+    \setmainfont{\PreferredFont}
+}{
+    \setmainfont{\FallbackFont}
+}
 
-% >>> THÊM ĐOẠN NÀY ĐỂ FIX LỖI SHADED (PANDOC HIGHLIGHTING) <<<
+\setlength{\parindent}{0pt}   
+\setlength{\parskip}{6pt}     
+
 $if(highlighting-macros)$
 $highlighting-macros$
 $endif$
-% >>> KẾT THÚC ĐOẠN THÊM <<<
 
-% Cấu hình Font chữ (Ưu tiên Arial, nếu không có thì dùng TeX Gyre Heros)
-\IfFontExistsTF{Arial}{
-    \setmainfont{Arial}
-}{
-    \setmainfont{TeX Gyre Heros}
-}
-
-% Xử lý khoảng cách đoạn văn
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
 % =================================================================
-% --- 2. MÀU SẮC & HEADER / FOOTER ---
-% =================================================================
-\usepackage[table]{xcolor}
-\usepackage{fancyhdr}
-
-% Định nghĩa màu Cam thương hiệu
-\definecolor{brandOrange}{RGB}{237, 125, 49}
-
-% Cấu hình Header và Footer
-\pagestyle{fancy}
-\fancyhf{} 
-
-% Header Trái: Lấy từ biến header_line hoặc Title
-$if(header_line)$
-    \fancyhead[L]{\textcolor{gray}{\small $header_line$}}
-$else$
-    \fancyhead[L]{\textcolor{gray}{\small $title$}}
-$endif$
-
-% Footer Phải: Số trang
-\fancyfoot[R]{\thepage}
-
-% Đường kẻ Header màu xám
-\renewcommand{\headrulewidth}{0.4pt}
-\renewcommand{\headrule}{\hbox to\headwidth{\color{gray}\leaders\hrule height \headrulewidth\hfill}}
-
-% =================================================================
-% --- 2.1. CẤU HÌNH TIÊU ĐỀ (HEADING STYLE) --- [MỚI]
-% =================================================================
-\usepackage{titlesec}
-
-\titlespacing*{\section}{0pt}{12pt}{6pt}
-\titlespacing*{\subsection}{0pt}{10pt}{4pt}
-\titlespacing*{\subsubsection}{0pt}{8pt}{3pt}
-
-% YÊU CẦU 1: Heading 1 (Section) màu cam
-\titleformat{\section}
-  {\color{brandOrange}\normalfont\Large\bfseries} % Format: Màu cam, Font thường, Lớn, In đậm
-  {\thesection.}{1em}{}
-
-% Giữ nguyên các cấp khác (đen mặc định)
-\titleformat{\subsection}
-  {\color{black}\normalfont\large\bfseries}
-  {\thesubsection.}{1em}{}
-  
-\titleformat{\subsubsection}
-  {\color{black}\normalfont\normalsize\bfseries}
-  {\thesubsubsection.}{1em}{}
-
-% =================================================================
-% --- 2.2. CẤU HÌNH DANH SÁCH (BULLET POINTS) --- [MỚI]
-% =================================================================
-\usepackage{enumitem}
-
-% YÊU CẦU 2: Tùy chỉnh Bullet Point các cấp
-% Cấp 1: Dấu tròn to hơn (\Large \textbullet)
-\setlist[itemize,1]{label=\raisebox{-0.9ex}{\textcolor{black}{\Huge\textbullet}}}
-
-% Cấp 2: Hình vuông full đen (\blacksquare) - Cần gói amssymb đã nạp ở trên
-\setlist[itemize,2]{label=\textcolor{black}{\tiny$$\blacksquare$$}}
-
-% Cấp 3: Dấu tròn thường (\textbullet)
-\setlist[itemize,3]{label=\textbullet}
-
-% Tùy chỉnh khoảng cách cho đẹp hơn (tùy chọn)
-\setlist{nosep} % Giảm khoảng cách giữa các dòng
-
-% =================================================================
-% --- 3. CẤU HÌNH BẢNG (TABLE) ---
-% =================================================================
-
-% Định nghĩa màu Cam thương hiệu (Đã có, H1)
-\definecolor{brandOrange}{RGB}{237, 125, 49} 
-% Định nghĩa màu Cam trung bình (H2)
-\definecolor{mediumOrange}{RGB}{250, 206, 156} 
-% Định nghĩa màu Cam nhạt (H3)
-\definecolor{lightOrange}{RGB}{253, 226, 202} 
-
-% =================================================================
-% --- 4. CẤU HÌNH HÌNH ẢNH (FIGURE) ---
+% --- 3. COLORS & GRAPHICS ---
 % =================================================================
 \usepackage{graphicx}
 \usepackage{float}
 
-% Logic TỰ ĐỘNG THU NHỎ ẢNH
+\definecolor{brandOrange}{RGB}{\BrandColorRGB}
+\definecolor{mediumOrange}{RGB}{250, 206, 156} 
+\definecolor{lightOrange}{RGB}{253, 226, 202} 
+
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
 \makeatother
 \setkeys{Gin}{width=\maxwidth, height=\maxheight, keepaspectratio}
 
-% Ép hình ảnh luôn căn giữa
+% Fix hình ảnh căn giữa (Không cần dịch chuyển nữa vì lề trái phải đã bằng nhau 2.5cm)
 \let\origfigure\figure
 \let\endorigfigure\endfigure
-\renewenvironment{figure}[1][H] {
-    \origfigure[#1]
-    \centering
-} {
-    \endorigfigure
-}
+\renewenvironment{figure}[1][H] {\origfigure[#1]\centering} {\endorigfigure}
 
 % =================================================================
-% --- 5. CẤU HÌNH CAPTION (CHÚ THÍCH) ---
+% --- 4. HEADER & FOOTER STYLING ---
 % =================================================================
+\pagestyle{fancy}
+\fancyhf{} 
+
+% Mở rộng Header sang trái
+\fancyhfoffset[L]{\NumberWidth}
+
+% Header
+$if(header_line)$
+    \fancyhead[L]{\fontfamily{ptm}\selectfont\textcolor{gray}{\small $header_line$}\vspace{3pt}}
+$else$
+    \fancyhead[L]{\fontfamily{ptm}\selectfont\textcolor{gray}{\small $title$}\vspace{3pt}}
+$endif$
+
+% Footer
+\fancyfoot[L]{\fontfamily{ptm}\selectfont\textcolor{gray}{\small Copyright \textcopyright\ 2025, Bestarion.}}
+\fancyfoot[R]{\fontfamily{ptm}\selectfont\thepage}
+
+% Rules
+\renewcommand{\headrulewidth}{0.4pt}
+\setlength{\headheight}{15pt} 
+\renewcommand{\headrule}{\hbox to\headwidth{\color{gray}\leaders\hrule height \headrulewidth\hfill}}
+
+\renewcommand{\footrulewidth}{0pt} 
+
+% =================================================================
+% --- 5. HEADING STYLES ---
+% =================================================================
+\usepackage{titlesec}
+
+\newcommand{\hangnum}[1]{\llap{\makebox[\NumberWidth][l]{#1}}}
+
+\titlespacing*{\section}{0pt}{12pt}{6pt}
+\titlespacing*{\subsection}{0pt}{10pt}{4pt}
+\titlespacing*{\subsubsection}{0pt}{8pt}{3pt}
+
+\titleformat{\section}[hang]
+  {\color{brandOrange}\normalfont\Large\bfseries} 
+  {\hangnum{\thesection.}} 
+  {0pt} {}
+
+\titleformat{\subsection}[hang]
+  {\color{black}\normalfont\large\bfseries}
+  {\hangnum{\thesubsection.}} 
+  {0pt} {}
+
+\titleformat{\subsubsection}[hang]
+  {\color{black}\normalfont\normalsize\bfseries}
+  {\hangnum{\thesubsubsection.}} 
+  {0pt} {}
+
+% =================================================================
+% --- 6. LIST STYLES ---
+% =================================================================
+\usepackage{enumitem}
+\usepackage{amssymb} 
+
+\setlist{nosep, leftmargin=*} 
+\setlist[itemize,1]{label=\raisebox{-0.9ex}{\textcolor{black}{\Huge\textbullet}}}
+\setlist[itemize,2]{label=\textcolor{black}{\tiny$$\blacksquare$$}}
+\setlist[itemize,3]{label=\textbullet}
+
+% =================================================================
+% --- 7. TABLES & CAPTIONS ---
+% =================================================================
+\usepackage{array}
+\usepackage{longtable}
 \usepackage{caption}
 
 \captionsetup{
@@ -159,9 +151,7 @@ $endif$
   position=bottom 
 }
 
-% Ép caption bảng xuống dưới
 \newcommand{\globalTableCaption}{}
-
 \AtBeginEnvironment{longtable}{
   \renewcommand{\globalTableCaption}{} 
   \let\OldCaption\caption 
@@ -170,104 +160,67 @@ $endif$
      \addcontentsline{lot}{table}{\numberline{\thetable}##2}
   }
 }
-
 \AtEndEnvironment{longtable}{
   \ifdefempty{\globalTableCaption}{}{
-    \begin{center} 
-       \captionof{table}{\globalTableCaption}
-    \end{center}
+    \begin{center} \captionof{table}{\globalTableCaption} \end{center}
   }
 }
 
 % =================================================================
-% --- 5.1. BỔ SUNG FIX LỖI ---
-% =================================================================
-% Các gói fix lỗi đã được nạp ở phần 1 (calc, booktabs...)
-\newcounter{none}
-
-% Định nghĩa các lệnh đặc biệt
-\providecommand{\e}{}
-\providecommand{\s}{\textbackslash s}
-\providecommand{\pandocbounded}[1]{#1}
-
-% =================================================================
-% --- 6. CẤU HÌNH MỤC LỤC (TOC, LOT, LOF) ---
+% --- 8. TOC & HYPERLINKS ---
 % =================================================================
 \usepackage{tocloft}
+\usepackage[unicode=true]{hyperref}
 
 \tocloftpagestyle{fancy} 
 
-% --- A. MỤC LỤC CHÍNH ---
-\renewcommand{\cfttoctitlefont}{\color{brandOrange}\Huge\bfseries\sffamily\MakeUppercase}
-\renewcommand{\cftsecfont}{\sffamily}
-\renewcommand{\cftsubsecfont}{\sffamily}
-\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
-
-% --- B. MỤC LỤC BẢNG ---
-\renewcommand{\cftlottitlefont}{\color{brandOrange}\Huge\bfseries\sffamily\MakeUppercase}
-\renewcommand{\cfttabfont}{\sffamily}
-\renewcommand{\cfttabpagefont}{\sffamily}
-\renewcommand{\cfttableader}{\cftdotfill{\cftdotsep}}
-
-% --- C. MỤC LỤC HÌNH ẢNH ---
-\renewcommand{\cftloftitlefont}{\color{brandOrange}\Huge\bfseries\sffamily\MakeUppercase}
-\renewcommand{\cftfigfont}{\sffamily}
-\renewcommand{\cftfigpagefont}{\sffamily}
-\renewcommand{\cftfigleader}{\cftdotfill{\cftdotsep}}
-
-% =================================================================
-% --- 7. CÁC LỆNH CHÈN THỦ CÔNG ---
-% =================================================================
-
-\newcommand{\customTitle}[1]{
-    \par\noindent 
-    {\color{brandOrange}\Huge\bfseries\sffamily\MakeUppercase{#1}}
-    \vspace{0.5cm} 
-    \par
+\renewcommand{\cfttoctitlefont}{%
+    \hspace{-\NumberWidth}%
+    \color{brandOrange}\Huge\bfseries\sffamily\MakeUppercase
+}
+\renewcommand{\cftlottitlefont}{%
+    \hspace{-\NumberWidth}%
+    \color{brandOrange}\Huge\bfseries\sffamily\MakeUppercase
+}
+\renewcommand{\cftloftitlefont}{%
+    \hspace{-\NumberWidth}%
+    \color{brandOrange}\Huge\bfseries\sffamily\MakeUppercase
 }
 
-\newcommand{\insertTOC}{
-    \newpage
-    \renewcommand{\contentsname}{TABLE OF CONTENT} 
-    \tableofcontents
-    \newpage
-}
+\setlength{\cftsecindent}{-\NumberWidth}    
+\setlength{\cftsubsecindent}{0pt}           
+\setlength{\cftsubsubsecindent}{1.5em}      
 
-\newcommand{\insertListTables}{
-    \newpage
-    \renewcommand{\listtablename}{INDEX OF TABLES} 
-    \listoftables
-    \newpage
-}
-
-\newcommand{\insertListFigures}{
-    \newpage
-    \renewcommand{\listfigurename}{INDEX OF FIGURES} 
-    \listoffigures
-    \newpage
-}
-
-% =================================================================
-% --- 8. HYPERLINKS & METADATA ---
-% =================================================================
-\usepackage[unicode=true]{hyperref}
 \hypersetup{
-    colorlinks=true,
-    linkcolor=blue,
-    filecolor=magenta,      
-    urlcolor=blue,
-    pdftitle={Controlled Document Convention},
-    pdfpagemode=FullScreen,
+    colorlinks=true, linkcolor=blue, filecolor=magenta, urlcolor=blue,
+    pdftitle={Controlled Document Convention}, pdfpagemode=FullScreen,
 }
 
+\newcommand{\insertTOC}{\newpage \renewcommand{\contentsname}{TABLE OF CONTENT} \tableofcontents \newpage}
+\newcommand{\insertListTables}{\newpage \renewcommand{\listtablename}{INDEX OF TABLES} \listoftables \newpage}
+\newcommand{\insertListFigures}{\newpage \renewcommand{\listfigurename}{INDEX OF FIGURES} \listoffigures \newpage}
+
+
 % =================================================================
-% --- 9. TRANG BÌA (TITLE PAGE) ---
+% --- 9. TITLE PAGE (TRANG BÌA) --- [FIXED CENTER]
 % =================================================================
 \renewcommand{\maketitle}{
+    \thispagestyle{empty}
+    
     \begin{titlepage}
-        \newgeometry{top=3cm, bottom=3cm, left=2.5cm, right=2.5cm}
-        \centering
+        % Cấu hình lề cho trang bìa
+        \newgeometry{
+            top=3cm, bottom=3cm, 
+            left=2.5cm, right=2.5cm
+        }
+        
+        % Đảm bảo không có thụt đầu dòng nào ảnh hưởng
+        \setlength{\parindent}{0pt}
+        \centering 
+        
         \vspace*{1cm}
+        
+        % Logo
         \IfFileExists{logo.jpeg}{\includegraphics[width=4cm]{logo.jpeg}}{
             \IfFileExists{logo.png}{\includegraphics[width=4cm]{logo.png}}{
                 \begin{center}\fbox{\parbox[c][2cm]{4cm}{\centering LOGO MISSING}}\end{center}
@@ -275,97 +228,73 @@ $endif$
         }
         \vspace{0.5cm} 
         
+        % Title
         {\color{brandOrange} \fontsize{30}{75}\selectfont $title$ \par}
+        
+        % Subtitle
         $if(subtitle)$ \vspace{1.3cm} {\fontsize{24}{28}\selectfont $subtitle$ \par} $endif$
         
         \vfill 
-        \raggedright
-        \renewcommand{\arraystretch}{1.5}
         
-        \begin{tabular}{ll}
-            \textbf{Security classification:} & \detokenize{$security$} \\      % <-- THÊM \detokenize
-            \textbf{Document code:} & \detokenize{$doc_code$} \\              % <-- THÊM \detokenize
-            \textbf{Last updated by:} & \detokenize{$updated_by$} \\                        % Tên người thường ít khi có _, nhưng nếu có hãy bọc luôn
-            \textbf{Effective date:} & \detokenize{$effective_date$} \\
-            \textbf{Version:} & \detokenize{$version$} \\
-            \textbf{Template ID:} & \detokenize{$template_id$} \\
-        \end{tabular}
+        % Metadata Table
+        % Dùng minipage để gói gọn bảng metadata và căn giữa nó
+        \begin{minipage}{0.8\textwidth} 
+            \centering % Căn giữa nội dung trong minipage (nếu cần) hoặc để raggedright
+            \raggedright
+            \renewcommand{\arraystretch}{1.5}
+            \begin{tabular}{ll}
+                \textbf{Security classification:} & \detokenize{$security$} \\
+                \textbf{Document code:} & \detokenize{$doc_code$} \\
+                \textbf{Last updated by:} & \detokenize{$updated_by$} \\
+                \textbf{Effective date:} & \detokenize{$effective_date$} \\
+                \textbf{Version:} & \detokenize{$version$} \\
+                \textbf{Template ID:} & \detokenize{$template_id$} \\
+            \end{tabular}
+        \end{minipage}
+        
         \restoregeometry
     \end{titlepage}
 }
 
-\newenvironment{ReviewTable}[1] % [1] là tham số cho caption
-{
-    % Bắt đầu longtable với 6 cột. p{0.3\textwidth} cho cột mô tả.
-    % {|c|p{0.3\textwidth}|c|c|c|c|}
-    \begin{longtable}{|c|p{0.3\textwidth}|c|c|c|c|}
-    \caption{#1} \\ 
-    \hline
-    \rowcolor{brandOrange}
-    
-    % Hàng Tiêu đề Cố định (6 cột)
-    \textbf{Version} & 
-    \textbf{Change description} & 
-    \textbf{Changed by} & 
-    \textbf{Date} & 
-    % Column 5: Dùng \makecell để xuống dòng
-    \makecell{\textbf{Reviewed} \\ \textbf{/Approved by}} & 
-    \textbf{Date} \\ 
-    \hline
-    
-    \endfirsthead
-
-    % Tiêu đề lặp lại (Đảm bảo 6 cột)
-    \multicolumn{6}{c}{\textbf{Bảng \thetable{} -- Tiếp theo}} \\ % Sửa \multicolumn thành 6 cột
-    \hline
-    \rowcolor{brandOrange}
-    \textbf{Version} & 
-    \textbf{Change description} & 
-    \textbf{Changed by} & 
-    \textbf{Date} & 
-    \makecell{\textbf{Reviewed} \\ \textbf{/Approved by}} & 
-    \textbf{Date} \\ 
-    \hline
-}
-{
-    \end{longtable}
-}
-
 % =================================================================
-% --- 10. NỘI DUNG CHÍNH --- [ĐÃ SỬA: PHÂN TÁCH TIÊU ĐỀ]
+% --- 10. DOCUMENT CONTENT --- [ĐÃ SỬA]
 % =================================================================
 \onehalfspacing
 \begin{document}
-\maketitle 
 
-\clearpage % Bắt đầu phần nội dung chính từ trang mới
-% DOCUMENT CONTROL SECTION
-\section*{\fontsize{15}{18}\selectfont \textcolor{orange}{\textbf{DOCUMENT CONTROL}}}
+\maketitle 
+\clearpage 
+
+% --- Document Control Table ---
+\noindent\hspace{-\NumberWidth}%
+{\color{brandOrange}\fontsize{15}{18}\selectfont\bfseries DOCUMENT CONTROL}%
+\par\vspace{6pt}
+
 $if(changelog)$
+% Table này sẽ làm bộ đếm tăng lên 1
 \begin{longtable}{|p{0.09\textwidth}|p{0.22\textwidth}|p{0.14\textwidth}|p{0.12\textwidth}|p{0.16\textwidth}|p{0.12\textwidth}|}
     \hline
     \rowcolor{brandOrange}
-    \textbf{Version}         & \textbf{Change Description} & \textbf{Changed By} & \textbf{Date} & \textbf{Approved By} & \textbf{Date} \\
+    \textbf{Version} & \textbf{Change Description} & \textbf{Changed By} & \textbf{Date} & \textbf{Approved By} & \textbf{Date} \\
     \hline
     $for(changelog)$
-    $changelog.version$      &
-    $changelog.description$  &
-    $changelog.changed_by$   &
-    $changelog.changed_date$ &
-    $changelog.approved$     &
-    $changelog.approval_date$                                                                                                           \\
-    \hline
+    $changelog.version$ & $changelog.description$ & $changelog.changed_by$ & $changelog.changed_date$ & $changelog.approved$ & $changelog.approval_date$ \\ \hline
     $endfor$
 \end{longtable}
 $endif$
-\clearpage % Tách bảng khỏi mục lục
+\clearpage 
 
-% Các mục lục (TOC, LOT, LOF)
+% --- TOC ---
 \insertTOC  
 \insertListTables  
 \insertListFigures
 
-% NỘI DUNG CHÍNH TỪ MARKDOWN
+% >>> QUAN TRỌNG: RESET BỘ ĐẾM TRƯỚC KHI VÀO NỘI DUNG CHÍNH <<<
+% Đặt lại đếm bảng về 0 (để bảng tiếp theo sẽ là Table 1)
+\setcounter{table}{0}
+\setcounter{figure}{0}
+
+% --- Main Body ---
 $body$
 
 \end{document}
