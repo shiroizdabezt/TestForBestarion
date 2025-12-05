@@ -1,22 +1,40 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[10pt,a4paper]{article} 
+% Lưu ý: Size chữ cơ bản (11pt) và khổ giấy (a4paper) nên chỉnh trực tiếp ở dòng trên.
 
 % =================================================================
 % --- 1. USER CONFIGURATION (CẤU HÌNH SIÊU THAM SỐ) ---
 % =================================================================
-\def\PageLeftMargin{2.5cm}   % Lề trái (Rộng hơn để chứa số thứ tự)
-\def\PageRightMargin{2.5cm}  % Lề phải (Cân bằng để fix lỗi căn giữa)
-\def\PageTopMargin{1.5cm}    
-\def\PageBottomMargin{1.5cm} 
+% --- A. CẤU HÌNH LỀ TRANG (PAGE MARGINS) ---
+% Đơn vị hỗ trợ: in (inch), cm, mm, pt.
+\def\PageLeftMargin{0.59in}   % Lề trái
+\def\PageRightMargin{0.59in}  % Lề phải (Nên bằng lề trái để căn giữa đẹp)
+\def\PageTopMargin{0.3in}     % Lề trên
+\def\PageBottomMargin{0.3in}  % Lề dưới
 
+% --- B. CẤU HÌNH KÍCH THƯỚC & KHOẢNG CÁCH ---
 \newlength{\NumberWidth}
-\setlength{\NumberWidth}{1.25cm} 
+\setlength{\NumberWidth}{1.25cm} % Độ rộng dành cho số thứ tự Heading (VD: 1.1.)
 
-\def\BrandColorRGB{237, 125, 49} 
+\newlength{\LogoWidth}
+\setlength{\LogoWidth}{4cm}      % Độ rộng của Logo ở trang bìa
+
+\def\GlobalParSkip{6pt}          % Khoảng cách giữa các đoạn văn
+
+% --- C. CẤU HÌNH MÀU SẮC (RGB) ---
+\def\BrandColorRGB{237, 125, 49} % Màu chủ đạo (Cam)
+\def\TableHeadColor{brandOrange} % Màu nền tiêu đề bảng (tham chiếu tên màu đã tạo)
+
+% --- D. CẤU HÌNH FONT CHỮ ---
 \def\PreferredFont{Arial}           
 \def\FallbackFont{TeX Gyre Heros}   
 
+% --- E. THÔNG TIN CHÂN TRANG (FOOTER INFO) ---
+\def\CompanyCopyright{Bestarion} % Tên công ty ở Footer
+\def\CopyrightYear{2025}         % Năm bản quyền
+
+
 % =================================================================
-% --- 2. PACKAGES & BASIC SETUP ---
+% --- 2. PACKAGES & BASIC SETUP (KHÔNG CẦN CHỈNH SỬA TỪ ĐÂY) ---
 % =================================================================
 % Quan trọng: Nạp fancyhdr sớm để tránh lỗi undefined control sequence
 \usepackage{fancyhdr} 
@@ -26,8 +44,9 @@
 \usepackage{setspace}
 \usepackage{calc}
 \usepackage{etoolbox}
-\usepackage[table]{xcolor} % Nạp xcolor với option table
+\usepackage[table]{xcolor} 
 
+% Áp dụng cấu hình margin
 \usepackage[
   left=\PageLeftMargin,
   right=\PageRightMargin,
@@ -35,14 +54,16 @@
   bottom=\PageBottomMargin
 ]{geometry}
 
+% Cấu hình Font
 \IfFontExistsTF{\PreferredFont}{
     \setmainfont{\PreferredFont}
 }{
     \setmainfont{\FallbackFont}
 }
 
+% Áp dụng khoảng cách đoạn
 \setlength{\parindent}{0pt}   
-\setlength{\parskip}{6pt}     
+\setlength{\parskip}{\GlobalParSkip}     
 
 $if(highlighting-macros)$
 $highlighting-macros$
@@ -57,6 +78,7 @@ $endif$
 \usepackage{graphicx}
 \usepackage{float}
 
+% Định nghĩa màu từ tham số RGB
 \definecolor{brandOrange}{RGB}{\BrandColorRGB}
 \definecolor{mediumOrange}{RGB}{250, 206, 156} 
 \definecolor{lightOrange}{RGB}{253, 226, 202} 
@@ -67,7 +89,7 @@ $endif$
 \makeatother
 \setkeys{Gin}{width=\maxwidth, height=\maxheight, keepaspectratio}
 
-% Fix hình ảnh căn giữa (Không cần dịch chuyển nữa vì lề trái phải đã bằng nhau 2.5cm)
+% Fix hình ảnh căn giữa
 \let\origfigure\figure
 \let\endorigfigure\endfigure
 \renewenvironment{figure}[1][H] {\origfigure[#1]\centering} {\endorigfigure}
@@ -88,15 +110,14 @@ $else$
     \fancyhead[L]{\fontfamily{ptm}\selectfont\textcolor{gray}{\small $title$}\vspace{3pt}}
 $endif$
 
-% Footer
-\fancyfoot[L]{\fontfamily{ptm}\selectfont\textcolor{gray}{\small Copyright \textcopyright\ 2025, Bestarion.}}
+% Footer (Sử dụng biến tham số hóa)
+\fancyfoot[L]{\fontfamily{ptm}\selectfont\textcolor{gray}{\small Copyright \textcopyright\ \CopyrightYear, \CompanyCopyright.}}
 \fancyfoot[R]{\fontfamily{ptm}\selectfont\thepage}
 
 % Rules
 \renewcommand{\headrulewidth}{0.4pt}
 \setlength{\headheight}{15pt} 
 \renewcommand{\headrule}{\hbox to\headwidth{\color{gray}\leaders\hrule height \headrulewidth\hfill}}
-
 \renewcommand{\footrulewidth}{0pt} 
 
 % =================================================================
@@ -200,7 +221,6 @@ $endif$
 \newcommand{\insertListTables}{\newpage \renewcommand{\listtablename}{INDEX OF TABLES} \listoftables \newpage}
 \newcommand{\insertListFigures}{\newpage \renewcommand{\listfigurename}{INDEX OF FIGURES} \listoffigures \newpage}
 
-
 % =================================================================
 % --- 9. TITLE PAGE (TRANG BÌA) --- [FIXED CENTER]
 % =================================================================
@@ -208,21 +228,20 @@ $endif$
     \thispagestyle{empty}
     
     \begin{titlepage}
-        % Cấu hình lề cho trang bìa
+        % Cấu hình lề cho trang bìa (sử dụng cm cho chuẩn xác hoặc đổi sang inch tùy ý)
         \newgeometry{
             top=3cm, bottom=3cm, 
             left=2.5cm, right=2.5cm
         }
         
-        % Đảm bảo không có thụt đầu dòng nào ảnh hưởng
         \setlength{\parindent}{0pt}
         \centering 
         
         \vspace*{1cm}
         
-        % Logo
-        \IfFileExists{logo.jpeg}{\includegraphics[width=4cm]{logo.jpeg}}{
-            \IfFileExists{logo.png}{\includegraphics[width=4cm]{logo.png}}{
+        % Logo (Sử dụng biến LogoWidth)
+        \IfFileExists{logo.jpeg}{\includegraphics[width=\LogoWidth]{logo.jpeg}}{
+            \IfFileExists{logo.png}{\includegraphics[width=\LogoWidth]{logo.png}}{
                 \begin{center}\fbox{\parbox[c][2cm]{4cm}{\centering LOGO MISSING}}\end{center}
             }
         }
@@ -237,9 +256,8 @@ $endif$
         \vfill 
         
         % Metadata Table
-        % Dùng minipage để gói gọn bảng metadata và căn giữa nó
         \begin{minipage}{0.8\textwidth} 
-            \centering % Căn giữa nội dung trong minipage (nếu cần) hoặc để raggedright
+            \centering 
             \raggedright
             \renewcommand{\arraystretch}{1.5}
             \begin{tabular}{ll}
@@ -257,7 +275,7 @@ $endif$
 }
 
 % =================================================================
-% --- 10. DOCUMENT CONTENT --- [ĐÃ SỬA]
+% --- 10. DOCUMENT CONTENT --- 
 % =================================================================
 \onehalfspacing
 \begin{document}
@@ -271,10 +289,9 @@ $endif$
 \par\vspace{6pt}
 
 $if(changelog)$
-% Table này sẽ làm bộ đếm tăng lên 1
 \begin{longtable}{|p{0.09\textwidth}|p{0.22\textwidth}|p{0.14\textwidth}|p{0.12\textwidth}|p{0.16\textwidth}|p{0.12\textwidth}|}
     \hline
-    \rowcolor{brandOrange}
+    \rowcolor{\TableHeadColor} % Sử dụng biến màu
     \textbf{Version} & \textbf{Change Description} & \textbf{Changed By} & \textbf{Date} & \textbf{Approved By} & \textbf{Date} \\
     \hline
     $for(changelog)$
@@ -289,8 +306,7 @@ $endif$
 \insertListTables  
 \insertListFigures
 
-% >>> QUAN TRỌNG: RESET BỘ ĐẾM TRƯỚC KHI VÀO NỘI DUNG CHÍNH <<<
-% Đặt lại đếm bảng về 0 (để bảng tiếp theo sẽ là Table 1)
+% Reset bộ đếm
 \setcounter{table}{0}
 \setcounter{figure}{0}
 
