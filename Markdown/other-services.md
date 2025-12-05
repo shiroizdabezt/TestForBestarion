@@ -27,7 +27,10 @@
     - ensure_key_pair: Specify the requirement of a key pair for EC2 login.  
     - key_name: The specific key pair to be used.   
     - tags: Assign tags to this instance.  
+
+
 # How to  
+
 - 
   
 # 
