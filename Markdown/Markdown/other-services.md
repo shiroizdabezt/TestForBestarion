@@ -35,4 +35,4 @@
   
 # 
 
-test lan 8
+test lan 1
