@@ -35,4 +35,4 @@
   
 # 
 
-test lan 6
+test lan 7
