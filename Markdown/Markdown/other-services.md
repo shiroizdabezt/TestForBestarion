@@ -29,10 +29,159 @@
     - tags: Assign tags to this instance.  
 
 
-# How to  
+# Purpose
+Deploy EC2 instance with Kafka, Redis, and related services in AWS nonprod performance environment with proper networking, security, and access controls.
 
-- 
-  
-# 
+# Prerequisites
 
-test lan 1
+Before running the Terraform configuration, verify the following prerequisites are met:
+
+## 1. AWS Account & Credentials
+**Required IAM Permissions:**
+- `ec2:CreateSecurityGroup`
+- `ec2:CreateSecurityGroupRule`
+- `ec2:RunInstances`
+- `ec2:CreateTags`
+- `ec2:DescribeSubnets`
+- `ec2:DescribeSecurityGroups`
+- `ec2:DescribeInstances`
+- `s3:GetObject`
+- `iam:PassRole`
+
+## 2. S3 Backend & Networking State
+```bash
+# Verify S3 bucket exists
+aws s3api head-bucket --bucket meperia-edi
+
+# Verify networking state file exists
+aws s3 ls s3://meperia-edi/terraform/networking/nonprod.tfstate
+
+# View VPC and subnet IDs from networking state
+aws s3 cp s3://meperia-edi/terraform/networking/nonprod.tfstate - | jq '.outputs | {vpc_id, private_app_subnet_ids}'
+```
+
+**What you should see:**
+- `vpc_id`: VPC ID (e.g., vpc-xxxxxxxx)
+- `private_app_subnet_ids`: List of private subnet IDs
+
+## 3. VPC & Subnets Exist
+```bash
+# Get VPC details (should match vpc_id from networking state)
+aws ec2 describe-vpcs --filters Name=cidr,Values=172.20.0.0/16 --region us-east-1
+
+# Verify private subnets exist
+aws ec2 describe-subnets --filters Name=vpc-id,Values=vpc-XXXXXXXX --region us-east-1 \
+  --query 'Subnets[?MapPublicIpOnLaunch==`false`].{SubnetId:SubnetId,CidrBlock:CidrBlock}'
+```
+
+## 4. AMI Validation
+```bash
+# Verify the golden AMI exists (with Kafka/Redis bundle)
+aws ec2 describe-images --image-ids ami-0360c520857e3138f --region us-east-1
+```
+
+## 5. IAM Role Exists
+```bash
+# Check if AmazonSSMRoleForInstancesQuickSetup role exists
+aws iam get-role --role-name AmazonSSMRoleForInstancesQuickSetup
+```
+
+## 6. EC2 Key Pair Exists
+```bash
+# Verify key pair exists
+aws ec2 describe-key-pairs --key-names max.dev.key.01 --region us-east-1
+```
+
+## 7. EC2 Module Available
+```bash
+# Verify EC2 module exists in project structure
+ls -la /nonprod/perf/../../modules/ec2/
+
+# Should contain: main.tf, variables.tf, outputs.tf, outputs.tf
+```
+
+## 9. Networking CIDR Ranges Valid
+```bash
+# Verify CIDR ranges are reachable and valid:
+# - 172.20.0.0/16 (Current VPC)
+# - 10.0.0.0/16 (MSS project VPC)
+
+aws ec2 describe-vpcs --region us-east-1 --query 'Vpcs[].{VpcId:VpcId,CidrBlock:CidrBlock}' --output table
+```
+
+## 10. Network Connectivity
+```bash
+# Ensure you can reach AWS from your machine
+ping 8.8.8.8
+
+# Ensure AWS CLI can reach AWS APIs (should return 200)
+curl -I https://sts.amazonaws.com/
+```
+
+---
+
+# How to Run Terraform
+
+## Step-by-Step Deployment Instructions
+
+### Step 1: Initialize Terraform
+```bash
+cd /nonprod/perf/other-services
+terraform init
+```
+
+### Step 2: Validate Configuration
+```bash
+terraform validate
+
+# Expected output:
+# Success! The configuration is valid.
+```
+
+### Step 3: Format Code (Optional)
+```bash
+# Format Terraform code for consistency
+terraform fmt -recursive
+```
+
+### Step 4: Generate Execution Plan
+```bash
+terraform plan -out=tfplan
+
+# Expected output:
+# Plan: X to add, 0 to change, 0 to destroy.
+
+# Review the plan details:
+terraform show tfplan
+```
+
+### Step 5: Apply Configuration
+```bash
+terraform apply tfplan
+
+# Expected output:
+# Apply complete! Resources: 9 added, 0 changed, 0 destroyed.
+```
+
+### Step 6: Retrieve Outputs
+```bash
+terraform output
+```
+
+### Step 7: Retrieve SSH Private Key (if needed)
+```bash
+RETRIEVE_CMD=$(terraform output -raw retrieve_private_key_command)
+echo $RETRIEVE_CMD
+
+# Execute the command to get private key
+eval $RETRIEVE_CMD
+```
+
+### Step 8: Connect to EC2 Instance
+```bash
+INSTANCE_IP=$(terraform output -raw instance_private_ip)
+
+# SSH into the instance
+ssh -i max.dev.key.01.pem ec2-user@$INSTANCE_IP
+```
+

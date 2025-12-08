@@ -125,6 +125,12 @@ $endif$
   {\hangnum{\thesubsubsection.}} 
   {0pt} {}
 
+\providecommand{\e}{}
+\providecommand{\s}{\textbackslash s}
+\providecommand{\pandocbounded}[1]{#1}
+\usepackage{etoolbox}
+
+
 % =================================================================
 % --- 6. LIST STYLES ---
 % =================================================================
@@ -250,7 +256,8 @@ $endif$
                 \textbf{Last updated by:} & \detokenize{$updated_by$} \\
                 \textbf{Effective date:} & \detokenize{$effective_date$} \\
                 \textbf{Version:} & \detokenize{$version$} \\
-                \textbf{Template ID:} & \detokenize{$template_id$} \\
+                %\textbf{Template ID:} & \detokenize{$template_id$} \\
+                \textbf{Template ID:} & $template_id$ \\
             \end{tabular}
         \end{minipage}
         

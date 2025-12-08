@@ -1,0 +1,201 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(name: 'MODE', choices: ['CHANGED_ONLY', 'ALL'], description: 'Chon che do convert')
+        string(name: 'TARGET_FOLDER', defaultValue: 'Markdown', description: 'Ten thu muc can quet')
+        booleanParam(name: 'FORCE_REBUILD_IMAGE', defaultValue: false, description: 'Check vao neu ban muon bat buoc build lai Docker Image')
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: scm.branches,
+                    extensions: [[$class: 'CloneOption', depth: 0, noTags: false, reference: '', shallow: false]],
+                    userRemoteConfigs: scm.userRemoteConfigs
+                ])
+            }
+        }
+
+        // --- STAGE MOI: TU DONG BUILD IMAGE ---
+        stage('Prepare Docker Image') {
+            steps {
+                script {
+                    def imageName = "my-custom-pandoc:latest"
+                    // Kiem tra xem image da ton tai chua
+                    def imageExists = sh(script: "docker images -q ${imageName}", returnStdout: true).trim()
+                    
+                    if (!imageExists || params.FORCE_REBUILD_IMAGE) {
+                        echo "Image '${imageName}' not found or Force Rebuild selected. Building now..."
+                        echo "This may take 5-10 minutes..."
+                        
+                        // Chuyen vao thu muc docker_env de build
+                        dir('docker_env') {
+                            // Kiem tra xem file Dockerfile co ton tai khong
+                            if (fileExists('Dockerfile')) {
+                                sh "docker build -t ${imageName} ."
+                            } else {
+                                error("CRITICAL: Khong tim thay Dockerfile trong folder docker_env/ ! Hay commit no len Git.")
+                            }
+                        }
+                    } else {
+                        echo "Image '${imageName}' found. Skipping build."
+                    }
+                }
+            }
+        }
+        // --------------------------------------
+        
+        stage('Check Commit Message & Filter') {
+            steps {
+                script {
+                    def manualCauses = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+                    def isManual = manualCauses != null && manualCauses.size() > 0
+                    
+                    def changedFilesBuffer = []
+                    def hasDocMessage = false
+                    def changeLogSets = currentBuild.changeSets
+                    
+                    if (changeLogSets.size() == 0) {
+                         def lastMsg = sh(returnStdout: true, script: 'git log -1 --pretty=%s').trim()
+                         if (lastMsg ==~ /^doc(\\(.*\\))?: .*/) hasDocMessage = true
+                    } else {
+                        for (int i = 0; i < changeLogSets.size(); i++) {
+                            def entries = changeLogSets[i].items
+                            for (int j = 0; j < entries.length; j++) {
+                                def entry = entries[j]
+                                if (entry.msg ==~ /^doc(\\(.*\\))?: .*/) hasDocMessage = true
+                                def files = entry.affectedFiles
+                                for (int k = 0; k < files.size(); k++) {
+                                    def file = files[k]
+                                    if (file.path.startsWith("${params.TARGET_FOLDER}/") && file.path.endsWith(".md")) {
+                                        changedFilesBuffer.add(file.path)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (isManual) {
+                        echo "Manual build. Ignoring commit message checks."
+                    } else {
+                        if (hasDocMessage) {
+                            echo "Found at least one 'doc:' commit."
+                        } else {
+                            currentBuild.result = 'ABORTED'
+                            error("Skipping build: No commit in this push starts with 'doc:'")
+                        }
+                    }
+                    env.GROOVY_DETECTED_FILES = changedFilesBuffer.join(" ")
+                }
+            }
+        }
+        
+        stage('Convert & Push PDF') {
+            agent {
+                docker { 
+                    // SU DUNG IMAGE VUA DUOC BUILD O TREN
+                    image 'my-custom-pandoc:3.8.3' 
+                    // Khong can mount font nua, vi da co trong image
+                    args '-u root:root --entrypoint='
+                    reuseNode true
+                }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'github-key', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
+                    script {
+                        sh """
+                            ORIG_UID=\$(stat -c "%u" .)
+                            ORIG_GID=\$(stat -c "%g" .)
+                            
+                            TARGET="${params.TARGET_FOLDER}"
+                            MODE="${params.MODE}"
+                            
+                            # Image nay la Ubuntu nen dung apt-get
+                            # Nhung vi da cai san trong Dockerfile nen chi can git, sed
+                            apt-get update && apt-get install -y git sed librsvg2-bin || true
+
+                            TEMPLATE_PATH="\$(pwd)/Markdown/Template/template.tex"
+                            LUA_FILTER_PATH="\$(pwd)/Markdown/Template/convention.lua"
+                            OUTPUT_PATH="\$(pwd)/Markdown/PDF/"
+
+                            mkdir -p "\$OUTPUT_PATH"
+
+                            if [ ! -f "\$TEMPLATE_PATH" ]; then
+                                echo "ERROR: Khong tim thay template tai: \$TEMPLATE_PATH"
+                                exit 1
+                            fi
+                            
+                            git config --global --add safe.directory "*"
+                            git config --global user.email "jenkins-bot@localhost"
+                            git config --global user.name "Jenkins PDF Bot"
+                            git remote set-url origin https://\${GIT_USER}:\${GIT_PASS}@github.com/shiroizdabezt/TestForBestarion.git
+
+                            ESC=\$(printf '\\033')
+                            FILES_LIST=""
+
+                            if [ "\$MODE" = "ALL" ]; then
+                                echo "Mode: ALL. Scanning all files in \$TARGET..."
+                                FILES_LIST=\$(find "\$TARGET" -name "*.md")
+                            else
+                                echo "Mode: CHANGED_ONLY."
+                                if [ -n "\$GROOVY_DETECTED_FILES" ]; then
+                                    echo "Using files detected by Groovy form ChangeSet."
+                                    FILES_LIST="\$GROOVY_DETECTED_FILES"
+                                else
+                                    echo "No files in ChangeSet. Checking git diff HEAD~1..."
+                                    FILES_LIST=\$(git diff --name-only --diff-filter=AM HEAD~1 HEAD | grep "^\$TARGET/.*\\.md\$" || true)
+                                fi
+                            fi
+
+                            if [ -z "\${FILES_LIST}" ]; then
+                                echo "No files found to process."
+                            else
+                                echo "Files to process:"
+                                echo "\${FILES_LIST}"
+                                FILES_LIST=\$(echo "\${FILES_LIST}" | tr ' ' '\\n' | sort -u)
+                                
+                                echo "\${FILES_LIST}" | while read filepath; do
+                                    if [ -f "\${filepath}" ]; then
+                                        dir=\$(dirname "\${filepath}")
+                                        filename=\$(basename "\${filepath}")
+                                        echo "Processing \${filename} in \${dir}..."
+                                        (
+                                            cd "\${dir}" || exit
+                                            LC_ALL=C sed "s/\${ESC}//g; s/\${ESC}\\[[0-9;]*[a-zA-Z]//g" "\${filename}" > "\${filename}.clean"
+                                            
+                                            pandoc "\${filename}.clean" \
+                                            -f markdown \
+                                            -o "\${OUTPUT_PATH}\${filename%.md}.pdf" \
+                                            --template="\${TEMPLATE_PATH}" \
+                                            --pdf-engine=xelatex \
+                                            --resource-path=. \
+                                            --lua-filter=\$LUA_FILTER_PATH \
+                                            
+                                            rm "\${filename}.clean"
+                                        )
+                                    fi
+                                done
+                                
+                                echo "Checking for changes..."
+                                find "\$TARGET" -name "*.pdf" | xargs git add
+                                
+                                if ! git diff-index --quiet HEAD; then
+                                    echo "Changes detected. Committing and Pushing..."
+                                    git commit -m "chore: auto-generated PDFs (\$MODE)"
+                                    git push origin HEAD:main
+                                else
+                                    echo "No PDF changes detected. Skipping push."
+                                fi
+                            fi
+
+                            chown -R \${ORIG_UID}:\${ORIG_GID} .
+                        """
+                    }
+                }
+            }
+        }
+    }
+}
