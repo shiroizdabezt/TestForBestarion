@@ -71,7 +71,21 @@ Bảng render ra tương ứng được áp dụng các style sau đây:
 
 ### 4. Định dạng hình ảnh
 
+ Cách để thêm một ảnh vào file markdown:
+```md
+![this is image caption](./image.png)
+```
+Bên trong `![]` là phần caption của ảnh. Bên trong `()` là đường dẫn tới file ảnh.  
 
+Hình ảnh render ra sẽ được áp dụng các style sau đây:
+- Image caption:
+
+  - **Font**: Arial italic.
+  - **Size**: 9pt.
+  - **Align**: Center
+  - **Color**: Black.
+
+- Image Align: Center
 
 ### 5. Định dạng văn bản
 
