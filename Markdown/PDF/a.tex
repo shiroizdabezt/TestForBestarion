@@ -1,0 +1,557 @@
+\documentclass[10pt,a4paper]{article} 
+% Lưu ý: Size chữ cơ bản (11pt) và khổ giấy (a4paper) nên chỉnh trực tiếp ở dòng trên.
+
+% =================================================================
+% --- 1. USER CONFIGURATION (CẤU HÌNH SIÊU THAM SỐ) ---
+% =================================================================
+% --- A. CẤU HÌNH LỀ TRANG (PAGE MARGINS) ---
+% Đơn vị hỗ trợ: in (inch), cm, mm, pt.
+\def\PageLeftMargin{0.59in}   % Lề trái
+\def\PageRightMargin{0.59in}  % Lề phải (Nên bằng lề trái để căn giữa đẹp)
+\def\PageTopMargin{0.3in}     % Lề trên
+\def\PageBottomMargin{0.3in}  % Lề dưới
+
+% --- B. CẤU HÌNH KÍCH THƯỚC & KHOẢNG CÁCH ---
+\newlength{\NumberWidth}
+\setlength{\NumberWidth}{1.25cm} % Độ rộng dành cho số thứ tự Heading (VD: 1.1.)
+
+\newlength{\LogoWidth}
+\setlength{\LogoWidth}{4cm}      % Độ rộng của Logo ở trang bìa
+
+\def\GlobalParSkip{6pt}          % Khoảng cách giữa các đoạn văn
+
+% --- C. CẤU HÌNH MÀU SẮC (RGB) ---
+\def\BrandColorRGB{237, 125, 49} % Màu chủ đạo (Cam)
+\def\TableHeadColor{brandOrange} % Màu nền tiêu đề bảng (tham chiếu tên màu đã tạo)
+
+% --- D. CẤU HÌNH FONT CHỮ ---
+\def\PreferredFont{Arial}           
+\def\FallbackFont{TeX Gyre Heros}   
+
+% --- E. THÔNG TIN CHÂN TRANG (FOOTER INFO) ---
+\def\CompanyCopyright{Bestarion} % Tên công ty ở Footer
+\def\CopyrightYear{2025}         % Năm bản quyền
+
+
+% =================================================================
+% --- 2. PACKAGES & BASIC SETUP (KHÔNG CẦN CHỈNH SỬA TỪ ĐÂY) ---
+% =================================================================
+% Quan trọng: Nạp fancyhdr sớm để tránh lỗi undefined control sequence
+\usepackage{fancyhdr} 
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{fontspec}
+\usepackage{setspace}
+\usepackage{calc}
+\usepackage{etoolbox}
+\usepackage[table]{xcolor} 
+
+
+\usepackage{graphicx}
+\makeatletter
+\providecommand{\pandocbounded}[1]{#1}
+\makeatother
+
+% Áp dụng cấu hình margin
+\usepackage[
+  left=\PageLeftMargin,
+  right=\PageRightMargin,
+  top=\PageTopMargin, 
+  bottom=\PageBottomMargin
+]{geometry}
+
+% Cấu hình Font
+\IfFontExistsTF{\PreferredFont}{
+    \setmainfont{\PreferredFont}
+}{
+    \setmainfont{\FallbackFont}
+}
+
+% Áp dụng khoảng cách đoạn
+\setlength{\parindent}{0pt}   
+\setlength{\parskip}{\GlobalParSkip}     
+
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% =================================================================
+% --- 3. COLORS & GRAPHICS ---
+% =================================================================
+\usepackage{graphicx}
+\usepackage{float}
+
+% Định nghĩa màu từ tham số RGB
+\definecolor{brandOrange}{RGB}{\BrandColorRGB}
+\definecolor{mediumOrange}{RGB}{250, 206, 156} 
+\definecolor{lightOrange}{RGB}{253, 226, 202} 
+
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+\setkeys{Gin}{width=\maxwidth, height=\maxheight, keepaspectratio}
+
+% Fix hình ảnh căn giữa
+\let\origfigure\figure
+\let\endorigfigure\endfigure
+\renewenvironment{figure}[1][H] {\origfigure[#1]\centering} {\endorigfigure}
+
+% =================================================================
+% --- 4. HEADER & FOOTER STYLING ---
+% =================================================================
+\pagestyle{fancy}
+\fancyhf{} 
+
+% Mở rộng Header sang trái
+\fancyhfoffset[L]{\NumberWidth}
+
+% Header
+    \fancyhead[L]{\fontfamily{ptm}\selectfont\textcolor{gray}{\small Bestarion.QM.CON.001-Controlled\_Document\_Convention-2\_1}\vspace{3pt}}
+
+% Footer (Sử dụng biến tham số hóa)
+\fancyfoot[L]{\fontfamily{ptm}\selectfont\textcolor{gray}{\small Copyright \textcopyright\ \CopyrightYear, \CompanyCopyright.}}
+\fancyfoot[R]{\fontfamily{ptm}\selectfont\thepage}
+
+% Rules
+\renewcommand{\headrulewidth}{0.4pt}
+\setlength{\headheight}{15pt} 
+\renewcommand{\headrule}{\hbox to\headwidth{\color{gray}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\footrulewidth}{0pt} 
+
+% =================================================================
+% --- 5. HEADING STYLES ---
+% =================================================================
+\usepackage{titlesec}
+
+\newcommand{\hangnum}[1]{\llap{\makebox[\NumberWidth][l]{#1}}}
+
+\titlespacing*{\section}{0pt}{12pt}{6pt}
+\titlespacing*{\subsection}{0pt}{10pt}{4pt}
+\titlespacing*{\subsubsection}{0pt}{8pt}{3pt}
+
+\titleformat{\section}[hang]
+  {\color{brandOrange}\normalfont\Large\bfseries} 
+  {\hangnum{\thesection.}} 
+  {0pt} {}
+
+\titleformat{\subsection}[hang]
+  {\color{black}\normalfont\large\bfseries}
+  {\hangnum{\thesubsection.}} 
+  {0pt} {}
+
+\titleformat{\subsubsection}[hang]
+  {\color{black}\normalfont\normalsize\bfseries}
+  {\hangnum{\thesubsubsection.}} 
+  {0pt} {}
+
+% =================================================================
+% --- 6. LIST STYLES ---
+% =================================================================
+\usepackage{enumitem}
+\usepackage{amssymb} 
+
+\setlist{nosep, leftmargin=*} 
+\setlist[itemize,1]{label=\raisebox{-0.9ex}{\textcolor{black}{\Huge\textbullet}}}
+\setlist[itemize,2]{label=\textcolor{black}{\tiny$\blacksquare$}}
+\setlist[itemize,3]{label=\textbullet}
+
+% =================================================================
+% --- 7. TABLES & CAPTIONS ---
+% =================================================================
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{caption}
+
+\captionsetup{
+  labelfont={bf, color=black},
+  textfont={it},
+  labelsep=colon,
+  skip=10pt,
+  position=bottom 
+}
+
+\newcommand{\globalTableCaption}{}
+\AtBeginEnvironment{longtable}{
+  \renewcommand{\globalTableCaption}{} 
+  \let\OldCaption\caption 
+  \renewcommand{\caption}[2][]{
+     \renewcommand{\globalTableCaption}{##2}
+     \addcontentsline{lot}{table}{\numberline{\thetable}##2}
+  }
+}
+\AtEndEnvironment{longtable}{
+  \ifdefempty{\globalTableCaption}{}{
+    \begin{center} \captionof{table}{\globalTableCaption} \end{center}
+  }
+}
+
+% =================================================================
+% --- 8. TOC & HYPERLINKS ---
+% =================================================================
+\usepackage{tocloft}
+\usepackage[unicode=true]{hyperref}
+
+\tocloftpagestyle{fancy} 
+
+\renewcommand{\cfttoctitlefont}{%
+    \hspace{-\NumberWidth}%
+    \color{brandOrange}\Huge\bfseries\sffamily\MakeUppercase
+}
+\renewcommand{\cftlottitlefont}{%
+    \hspace{-\NumberWidth}%
+    \color{brandOrange}\Huge\bfseries\sffamily\MakeUppercase
+}
+\renewcommand{\cftloftitlefont}{%
+    \hspace{-\NumberWidth}%
+    \color{brandOrange}\Huge\bfseries\sffamily\MakeUppercase
+}
+
+\setlength{\cftsecindent}{-\NumberWidth}    
+\setlength{\cftsubsecindent}{0pt}           
+\setlength{\cftsubsubsecindent}{1.5em}      
+
+\hypersetup{
+    colorlinks=true, linkcolor=blue, filecolor=magenta, urlcolor=blue,
+    pdftitle={Controlled Document Convention}, pdfpagemode=FullScreen,
+}
+
+\newcommand{\insertTOC}{\newpage \renewcommand{\contentsname}{TABLE OF CONTENT} \tableofcontents \newpage}
+\newcommand{\insertListTables}{\newpage \renewcommand{\listtablename}{INDEX OF TABLES} \listoftables \newpage}
+\newcommand{\insertListFigures}{\newpage \renewcommand{\listfigurename}{INDEX OF FIGURES} \listoffigures \newpage}
+
+% =================================================================
+% --- 9. TITLE PAGE (TRANG BÌA) --- [FIXED CENTER]
+% =================================================================
+\renewcommand{\maketitle}{
+    \thispagestyle{empty}
+    
+    \begin{titlepage}
+        % Cấu hình lề cho trang bìa (sử dụng cm cho chuẩn xác hoặc đổi sang inch tùy ý)
+        \newgeometry{
+            top=3cm, bottom=3cm, 
+            left=2.5cm, right=2.5cm
+        }
+        
+        \setlength{\parindent}{0pt}
+        \centering 
+        
+        \vspace*{1cm}
+        
+        % Logo (Sử dụng biến LogoWidth)
+        \IfFileExists{logo.jpeg}{\includegraphics[width=\LogoWidth]{logo.jpeg}}{
+            \IfFileExists{logo.png}{\includegraphics[width=\LogoWidth]{logo.png}}{
+                \begin{center}\fbox{\parbox[c][2cm]{4cm}{\centering LOGO MISSING}}\end{center}
+            }
+        }
+        \vspace{0.5cm} 
+        
+        % Title
+        {\color{brandOrange} \fontsize{30}{75}\selectfont CONTROLLED
+DOCUMENT CONVENTION \par}
+        
+        % Subtitle
+         \vspace{1.3cm} {\fontsize{24}{28}\selectfont QM \par} 
+        
+        \vfill 
+        
+        % Metadata Table
+        \begin{minipage}{0.8\textwidth} 
+            \centering 
+            \raggedright
+            \renewcommand{\arraystretch}{1.5}
+            \begin{tabular}{ll}
+                \textbf{Security classification:} & \detokenize{INTERNAL} \\
+                \textbf{Document code:} & \detokenize{Bestarion.QM.CON.001} \\
+                \textbf{Last updated by:} & \detokenize{Khoa
+Nguyen-Dinh} \\
+                \textbf{Effective date:} & \detokenize{Aug 09, 2023} \\
+                \textbf{Version:} & \detokenize{2.1} \\
+                \textbf{Template ID:} & \detokenize{ODT\_Base\_Template} \\
+            \end{tabular}
+        \end{minipage}
+        
+        \restoregeometry
+    \end{titlepage}
+}
+
+% =================================================================
+% --- 10. DOCUMENT CONTENT --- 
+% =================================================================
+\onehalfspacing
+\begin{document}
+
+\maketitle 
+\clearpage 
+
+% --- Document Control Table ---
+\noindent\hspace{-\NumberWidth}%
+{\color{brandOrange}\fontsize{15}{18}\selectfont\bfseries DOCUMENT CONTROL}%
+\par\vspace{6pt}
+
+\begin{longtable}{|p{0.09\textwidth}|p{0.22\textwidth}|p{0.14\textwidth}|p{0.12\textwidth}|p{0.16\textwidth}|p{0.12\textwidth}|}
+    \hline
+    \rowcolor{\TableHeadColor} % Sử dụng biến màu
+    \textbf{Version} & \textbf{Change Description} & \textbf{Changed By} & \textbf{Date} & \textbf{Approved By} & \textbf{Date} \\
+    \hline
+        1.0 & Khởi tạo tài liệu và phê duyệt lần
+đầu. & KhoaND & 2025-01-01 & CEO/TienDD & 2025-01-05 \\ \hline
+        1.1 & Cập nhật phần quy trình
+3.2. & MinhNT & 2025-02-10 & N/A & N/A \\ \hline
+    \end{longtable}
+\clearpage 
+
+% --- TOC ---
+\insertTOC  
+\insertListTables  
+\insertListFigures
+
+% Reset bộ đếm
+\setcounter{table}{0}
+\setcounter{figure}{0}
+
+% --- Main Body ---
+\section{\texorpdfstring{\textbf{Introduction}}{Introduction}}\label{introduction}
+
+\subsection{\texorpdfstring{\textbf{Purpose}}{Purpose}}\label{purpose}
+
+This document specifies conventions for naming and version of documents
+which are in scope of QMS \& ISMS.
+
+\subsection{\texorpdfstring{\textbf{Scope}}{Scope}}\label{scope}
+
+This convention is applied to only the controlled documents, which are
+internally created by Bestarion.
+
+Following documents are outside the scope of this convention:
+
+\begin{itemize}
+\tightlist
+\item
+  Uncontrolled documents and records
+\item
+  Documents obtained from external sources (such as, government
+  regulatory,\ldots)
+\item
+  Project documents to follow customers' conventions, regarding naming
+  and/ or version
+\end{itemize}
+
+\subsection{\texorpdfstring{\textbf{Definition And
+Abbreviation}}{Definition And Abbreviation}}\label{definition-and-abbreviation}
+
+\begin{itemize}
+\item
+  BoD: Board of Directors
+\item
+  QM: Quality Management
+\item
+  Controlled Document: A document with its versions to be controlled, in
+  order to ensure appropriate
+\end{itemize}
+
+access to correct content. When a controlled document is to be changed,
+its new
+
+version must be controlled via appropriate review and approval
+procedures
+
+Document: Information and its supporting medium (text files, images,
+video, voice,\ldots)
+
+Record: Is a kind of document which is resulted from performing
+operations
+
+\subsection{\texorpdfstring{\textbf{References}}{References}}\label{references}
+
+\begin{itemize}
+\tightlist
+\item
+  {[}1{]} Document\_Responsibility\_Authority\_Standard
+\item
+  {[}2{]} Control\_Of\_Documented\_Information
+\end{itemize}
+
+\section{\texorpdfstring{\textbf{Regulation}}{Regulation}}\label{regulation}
+
+The objective for document owner when creating a new document is no more
+than 1 easily identifiable error in 5 A4 pages
+
+\section{\texorpdfstring{\textbf{Naming Of Controlled Non-record
+Documents}}{Naming Of Controlled Non-record Documents}}\label{naming-of-controlled-non-record-documents}
+
+When a controlled document is not a record, the file name shall follow
+below format:
+
+\textbf{{[}Document Code{]}-{[}Document Name{]}-{[}Version Number{]}}
+
+Each part is separated by a hyphen.
+
+\subsection{\texorpdfstring{\textbf{Document
+Code}}{Document Code}}\label{document-code}
+
+The document code can be used as a short name to refer to the document.
+
+Document Code is constructed by following format:
+
+\textbf{{[}Unit Code{]}.{[}Document Type Code{]}.{[}Ordinal Number{]}}
+
+Each part is separated by a stop (`.').
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Unit Code}: Code representing the unit
+
+  \begin{itemize}
+  \tightlist
+  \item
+    In case unit is a department or portfolio: refer to corporate
+    organizational structure for the corresponding code
+
+    \begin{itemize}
+    \tightlist
+    \item
+      Bestarion
+
+      \begin{itemize}
+      \tightlist
+      \item
+        IT: Information Technology Department
+      \end{itemize}
+    \end{itemize}
+  \item
+    In case unit is a sub-group within a department or a portfolio:
+    refer to the department/ portfolio charter for the corresponding
+    code
+  \item
+    In case document apply in a sub-company, unit code may be included
+    company name
+  \end{itemize}
+\item
+  \textbf{Document Type Code}: Refer to \hyperref[page-5-8]{{[}1{]}} for
+  the codes of document types
+\item
+  \textbf{Ordinal Number} (3 digits): A unique number to differentiate
+  documents in the same document type, belonging to the same unit
+\end{itemize}
+
+\emph{Examples: HR.GUI.234, QM.POL.001},
+\emph{Bestarion.IT.POL.001}\ldots{}
+
+\subsection{\texorpdfstring{\textbf{Document
+Name}}{Document Name}}\label{document-name}
+
+Document name is a unique name of document, with following convention:
+
+\begin{itemize}
+\tightlist
+\item
+  The first letter of each word shall be in capital
+\item
+  Words are separated by underscore character (`\_')
+\end{itemize}
+
+\emph{Examples: Project\_Planning, Risk\_Management.}
+
+Document name should not include the type of document, since the type is
+already known in Document Code part \hyperref[page-5-1]{(3.1.)}
+
+\subsection{\texorpdfstring{\textbf{Version
+Number}}{Version Number}}\label{version-number}
+
+A version number is constructed of 3 numbers: ``Major version number'',
+``Minor version number'' and ``Draft number''.
+
+Those numbers are separated by a underscore (``\_'').
+
+\textbf{{[}Major Version Number{]}\_{[}Minor Version Number{]}\_{[}Draft
+Number{]}}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Major version number}: Started from 0. The first baseline has
+  major version equals 1. Major version is increased when there are
+  changes to the document content, which affect to the original meaning
+  of the document
+\item
+  \textbf{Minor version number}: Started from 0. Minor version is
+  increased when there are only changes to enhance or correct the
+  content, while the original meaning is intact
+\item
+  \textbf{Draft number}: Started from 1. This number is increased when a
+  draft is updated and re-submitted for review. A document may pass
+  through several draft updates until it is baseline
+\item
+  \textbf{Note:} Before the first baseline of each document, draft
+  version number for document is constructed of 2 numbers: ``Major
+  version number'' and ``Draft number''
+\item
+  \emph{Examples:}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \emph{QM.POL.001-Quality\_Manual-0\_1 The first draft of policy
+    `Quality Manual', issued by QM}
+  \item
+    \emph{QM.POL.001-Quality\_Manual-0\_2 The second draft, re-submitted
+    for review}
+  \end{itemize}
+\end{itemize}
+
+\begin{table}[h]
+\centering
+{\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{|l|l|l|}
+\hline
+
+\rowcolor{brandOrange}\textbf{} & \textbf{QM.POL.001-Quality\_Manual-1\_0} & \textbf{The first baseline of policy ‘Quality Manual’, issued by QM} \\
+\hline
+
+ & QM.POL.001-Quality\_Manual-1\_0\_1 & The first draft version after the first baseline \\
+
+\hline
+
+ & QM.POL.001-Quality\_Manual-1\_1 & The minor baseline of the document, based on version 1.0 \\
+
+\hline
+
+ & QM.POL.001-Quality\_Manual-2\_0 & The major baseline of the document, based on version 1.x \\
+
+\hline
+
+\end{tabular}}
+
+\caption{Test figure}
+
+\end{table}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio,alt={Hinh so 1}]{./_page_13_Picture_7.jpeg}}
+\caption{Hinh so 1}
+\end{figure}
+
+\begin{itemize}
+\tightlist
+\item
+  aouwhfuahfuawhfuawd
+\item
+  Sua lan 4
+\end{itemize}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio,alt={Hinh so 2}]{./_page_14_Figure_1.jpeg}}
+\caption{Hinh so 2}
+\end{figure}
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio,alt={Hinh so 3}]{./image.png}}
+\caption{Hinh so 3}
+\end{figure}
+
+\end{document}

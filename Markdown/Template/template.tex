@@ -8,8 +8,19 @@
 \def\PageTopMargin{1.5cm}    
 \def\PageBottomMargin{1.5cm} 
 
+
 \newlength{\NumberWidth}
 \setlength{\NumberWidth}{1.25cm} 
+
+\newlength{\LogoWidth}
+\setlength{\LogoWidth}{4cm}      % Độ rộng của Logo ở trang bìa
+\def\GlobalParSkip{6pt}          % Khoảng cách giữa các đoạn văn
+% --- C. CẤU HÌNH MÀU SẮC (RGB) ---
+\def\BrandColorRGB{237, 125, 49} % Màu chủ đạo (Cam)
+\def\TableHeadColor{brandOrange} % Màu nền tiêu đề bảng (tham chiếu tên màu đã tạo)
+
+\def\CompanyCopyright{Bestarion} % Tên công ty ở Footer
+\def\CopyrightYear{2025} 
 
 \def\BrandColorRGB{237, 125, 49} 
 \def\PreferredFont{Arial}           
@@ -28,6 +39,12 @@
 \usepackage{etoolbox}
 \usepackage[table]{xcolor} % Nạp xcolor với option table
 
+\usepackage{graphicx}
+\makeatletter
+\providecommand{\pandocbounded}[1]{#1}
+\makeatother
+
+
 \usepackage[
   left=\PageLeftMargin,
   right=\PageRightMargin,
@@ -42,7 +59,7 @@
 }
 
 \setlength{\parindent}{0pt}   
-\setlength{\parskip}{6pt}     
+\setlength{\parskip}{\GlobalParSkip}    
 
 $if(highlighting-macros)$
 $highlighting-macros$
@@ -82,14 +99,20 @@ $endif$
 \fancyhfoffset[L]{\NumberWidth}
 
 % Header
+% Header
 $if(header_line)$
-    \fancyhead[L]{\fontfamily{ptm}\selectfont\textcolor{gray}{\small $header_line$}\vspace{3pt}}
+    \fancyhead[L]{\fontfamily{ptm}\selectfont\textcolor{gray}{\small $header_line$}} % XÓA \vspace{3pt}
 $else$
-    \fancyhead[L]{\fontfamily{ptm}\selectfont\textcolor{gray}{\small $title$}\vspace{3pt}}
+    \fancyhead[L]{\fontfamily{ptm}\selectfont\textcolor{gray}{\small $title$}}       % XÓA \vspace{3pt}
 $endif$
 
+% Rules
+\renewcommand{\headrulewidth}{0.4pt}
+\setlength{\headheight}{15pt} % <--- Có thể giảm thêm nếu cần thiết (ví dụ: 12pt)
+\renewcommand{\headrule}{\hbox to\headwidth{\color{gray}\leaders\hrule height \headrulewidth\hfill}}
+
 % Footer
-\fancyfoot[L]{\fontfamily{ptm}\selectfont\textcolor{gray}{\small Copyright \textcopyright\ 2025, Bestarion.}}
+\fancyfoot[L]{\fontfamily{ptm}\selectfont\textcolor{gray}{\small Copyright \textcopyright\ \CopyrightYear, \CompanyCopyright.}}
 \fancyfoot[R]{\fontfamily{ptm}\selectfont\thepage}
 
 % Rules
@@ -283,7 +306,7 @@ $if(changelog)$
 % Table này sẽ làm bộ đếm tăng lên 1
 \begin{longtable}{|p{0.09\textwidth}|p{0.22\textwidth}|p{0.14\textwidth}|p{0.12\textwidth}|p{0.16\textwidth}|p{0.12\textwidth}|}
     \hline
-    \rowcolor{brandOrange}
+    \rowcolor{\TableHeadColor}
     \textbf{Version} & \textbf{Change Description} & \textbf{Changed By} & \textbf{Date} & \textbf{Approved By} & \textbf{Date} \\
     \hline
     $for(changelog)$
