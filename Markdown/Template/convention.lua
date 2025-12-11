@@ -125,8 +125,7 @@ end
 -- Build table begin LaTeX code
 local function build_table_begin(colspec, vertical_padding)
   return [[
-\begin{table}[h]
-\centering
+\begin{center}
 {\renewcommand{\arraystretch}{]] .. vertical_padding .. [[}
 \begin{tabular}{]] .. colspec .. [[}
 \hline
@@ -186,7 +185,7 @@ function Table(tbl)
   end
   
   -- Close table environment
-  blocks:insert(pandoc.RawBlock('latex', '\\end{table}\n'))
+  blocks:insert(pandoc.RawBlock('latex', '\\end{center}\n'))
   
   return blocks
 end

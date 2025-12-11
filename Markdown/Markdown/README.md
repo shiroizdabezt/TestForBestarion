@@ -67,7 +67,7 @@ The rendered table is applied with the following styles:
 
 - Table Align: Center
 
-![example table](../images/image-2.png)
+![example table](./images/image-2.png)
 
 ### 3. Image Formatting
 
@@ -87,7 +87,7 @@ Rendered images will have the following styles applied:
 
 - Image Align: Center
 
-![example image](../images/image-3.png)  
+![example image](./images/image-3.png)  
 
 ### 4. Text Formatting
 
@@ -100,7 +100,7 @@ Rendered images will have the following styles applied:
 | `__ - <List Item 2>` | List 2 | **Font**: Arial, Regular<br>**Size**: 10<br>**Align**: Left<br>**Character**: `■` |
 | `____ - <List Item 3>` | List 3 | **Font**: Arial, Regular<br>**Size**: 10<br>**Align**: Justified<br>**Character**: `•` |
 
-![example list](../images/image-4.png)
+![example list](./images/image-4.png) 
 
 ### 5. Metadata Variables
 
@@ -209,7 +209,7 @@ changelog:
 
 The content of the two corresponding cover pages will be created as follows:
 
-![Demo generate 2 pages](../images/image-1.png)
+![Demo generate 2 pages](./images/image-1.png)
 
 ## Convention
 
