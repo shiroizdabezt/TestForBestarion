@@ -97,7 +97,7 @@ pipeline {
             agent {
                 docker { 
                     // SU DUNG IMAGE VUA DUOC BUILD O TREN
-                    image 'my-custom-pandoc:3.8.3' 
+                    image 'my-custom-pandoc:latest' 
                     // Khong can mount font nua, vi da co trong image
                     args '-u root:root --entrypoint='
                     reuseNode true
