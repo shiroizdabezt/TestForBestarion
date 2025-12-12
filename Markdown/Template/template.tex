@@ -4,7 +4,7 @@
 % --- 1. USER CONFIGURATION (CẤU HÌNH SIÊU THAM SỐ) ---
 % =================================================================
 \def\PageLeftMargin{2.5cm}   % Lề trái (Rộng hơn để chứa số thứ tự)
-\def\PageRightMargin{2.5cm}  % Lề phải (Cân bằng để fix lỗi căn giữa)
+\def\PageRightMargin{1.3cm}  % Lề phải (Cân bằng để fix lỗi căn giữa)
 \def\PageTopMargin{1.5cm}    
 \def\PageBottomMargin{1.5cm} 
 
@@ -167,7 +167,13 @@ $endif$
 \usepackage{enumitem}
 \usepackage{amssymb} 
 
-\setlist{nosep, leftmargin=*} 
+\setlist{
+    leftmargin=*,    % Giữ nguyên căn lề trái thông minh
+    itemsep=6pt,     % <--- TĂNG GIÁ TRỊ NÀY (Khoảng cách giữa các dòng 1, 2, 3...)
+    topsep=6pt,      % Khoảng cách giữa danh sách và đoạn văn phía trên
+    parsep=3pt       % Khoảng cách giữa các đoạn văn trong cùng 1 item (nếu item dài)
+}
+
 \setlist[itemize,1]{label=\raisebox{-0.9ex}{\textcolor{black}{\Huge\textbullet}}}
 \setlist[itemize,2]{label=\textcolor{black}{\tiny$$\blacksquare$$}}
 \setlist[itemize,3]{label=\textbullet}
@@ -202,8 +208,14 @@ $endif$
   }
 }
 
+
 \captionsetup[figure]{%
   name=\textit{Illustration},
+  labelfont=normalfont
+}
+
+\captionsetup[table]{%
+  name=\textit{Table},
   labelfont=normalfont
 }
 
@@ -231,6 +243,15 @@ $endif$
 \setlength{\cftsecindent}{-\NumberWidth}    
 \setlength{\cftsubsecindent}{0pt}           
 \setlength{\cftsubsubsecindent}{1.5em}      
+
+
+% 2. Danh sách Bảng (List of Tables)
+% Kéo danh sách bảng sang trái tương tự
+\setlength{\cfttabindent}{-\NumberWidth}
+
+% 3. Danh sách Hình (List of Figures)
+% Kéo danh sách hình sang trái tương tự
+\setlength{\cftfigindent}{-\NumberWidth}
 
 \hypersetup{
     colorlinks=true, linkcolor=blue, filecolor=magenta, urlcolor=blue,
@@ -309,14 +330,20 @@ $endif$
 \maketitle 
 \clearpage 
 
+\raggedright
+
 % --- Document Control Table ---
 \noindent\hspace{-\NumberWidth}%
 {\color{brandOrange}\fontsize{15}{18}\selectfont\bfseries DOCUMENT CONTROL}%
 \par\vspace{6pt}
 
 $if(changelog)$
-% Table này sẽ làm bộ đếm tăng lên 1
-\begin{longtable}{|p{0.09\textwidth}|p{0.22\textwidth}|p{0.14\textwidth}|p{0.12\textwidth}|p{0.16\textwidth}|p{0.12\textwidth}|}
+{\footnotesize
+
+\setlength\LTleft{-1.2cm} 
+\setlength\LTright\fill  
+
+\begin{longtable}{|p{0.09\textwidth}|p{0.30\textwidth}|p{0.14\textwidth}|l|p{0.16\textwidth}|l|}
     \hline
     \rowcolor{\TableHeadColor}
     \textbf{Version} & \textbf{Change Description} & \textbf{Changed By} & \textbf{Date} & \textbf{Approved By} & \textbf{Date} \\
@@ -325,8 +352,10 @@ $if(changelog)$
     $changelog.version$ & $changelog.description$ & $changelog.changed_by$ & $changelog.changed_date$ & $changelog.approved$ & $changelog.approval_date$ \\ \hline
     $endfor$
 \end{longtable}
+}
+
 $endif$
-\clearpage 
+\clearpage
 
 % --- TOC ---
 \insertTOC  

@@ -18,6 +18,24 @@ changelog:
     changed_date: "2025-12-10"
     approved: ""
     approval_date: "2025-12-10"
+  - version: "1.0"
+    description: "Khởi tạo tài liệu "
+    changed_by: "KhoaND"
+    changed_date: "2025-12-10"
+    approved: ""
+    approval_date: "2025-12-10"
+  - version: "1.0"
+    description: "Khởi tạo tài liệu "
+    changed_by: "KhoaND"
+    changed_date: "2025-12-10"
+    approved: ""
+    approval_date: "2025-12-10"
+  - version: "1.0"
+    description: "Khởi tạo tài liệu "
+    changed_by: "KhoaND"
+    changed_date: "2025-12-10"
+    approved: ""
+    approval_date: "2025-12-10"
 footer_line: "Bản quyền3 @ 2025, Bestarion Inc."
 ---
 
@@ -113,7 +131,7 @@ Before running the Terraform configuration, verify the following prerequisites a
 ## **Terraform and AWS Provider Requirements**
 
 | Name | Version |
-|------|---------|
+|:------:|:---------:|
 | terraform | >= 1.5.0 |
 | aws | >= 5.0 |
 
@@ -225,6 +243,14 @@ Establish SSH connection to the instance:
 INSTANCE_IP=$(terraform output -raw instance_private_ip)
 ssh -i max.dev.key.01.pem ec2-user@$INSTANCE_IP
 ```
+
+| Name | Version |
+|------|---------|
+| aws | 6.22.1 |
+| terraform | n/a |
+
+: bcdefoauwhfouahwofu
+
 
 ## **Redeploying After Accidental Destruction**
 
