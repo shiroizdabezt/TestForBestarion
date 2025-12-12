@@ -115,7 +115,7 @@ pipeline {
                             
                             # Image nay la Ubuntu nen dung apt-get
                             # Nhung vi da cai san trong Dockerfile nen chi can git, sed
-                            # apt-get update && apt-get install -y git sed librsvg2-bin || true
+                            apt-get update && apt-get install -y git sed librsvg2-bin || true
 
                             TEMPLATE_PATH="\$(pwd)/Markdown/Template/template.tex"
                             LUA_FILTER_PATH="\$(pwd)/Markdown/Template/convention.lua"
