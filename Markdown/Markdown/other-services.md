@@ -18,7 +18,7 @@ changelog:
     changed_date: "2025-12-10"
     approved: ""
     approval_date: "2025-12-10"
-
+footer_line: "Bản quyền tài liệu @ 2025, Bestarion Inc."
 ---
 
 # **Overview**
@@ -52,11 +52,14 @@ The scope does NOT include:
 - **SSM**: Systems Manager - AWS service that provides a unified interface for managing and automating operational tasks across AWS resources.
 
 - **EBS**: Elastic Block Store - A scalable block storage service for use with EC2 instances, providing persistent storage.
----
+
+
 
 # **Architecture**
 ## **Diagram**
-![Architecture Diagram](./images/other-services.png) 
+![Architecture EC2](./images/ec2.png) 
+
+![Architecture Network](./images/network.png) 
 
 ## **Directory Structure**
 ```
@@ -67,7 +70,7 @@ The scope does NOT include:
 └── outputs.tf
 ```
 
----
+
 
 # **Requirements**
 
@@ -100,7 +103,8 @@ The Terraform configuration must meet the following requirements:
 10. **Private Subnet Deployment**: Deploy the EC2 instance in a private subnet to enhance security and prevent direct internet exposure.
 
 11. **SSH Key Pair**: Reuse the existing key pair for SSH access, ensuring consistency across the nonprod environment.
----
+
+
 
 # **Prerequisites**
 
@@ -113,12 +117,16 @@ Before running the Terraform configuration, verify the following prerequisites a
 | terraform | >= 1.5.0 |
 | aws | >= 5.0 |
 
+: abc
+
 ### **Providers**
 
 | Name | Version |
 |------|---------|
 | aws | 6.22.1 |
 | terraform | n/a |
+
+: bcd
 
 ## **Prerequisites**
 
@@ -132,7 +140,8 @@ Before running the Terraform configuration, verify the following prerequisites a
 8. **CIDR Range Validation**: Confirm that both CIDR ranges are properly configured and accessible.  
 9. **AWS CLI Connectivity**: Ensure your machine has network connectivity to AWS APIs and can authenticate with your AWS credentials.  
 10. **Remote State Backend**: Verify that the S3 backend and networking state file exist for remote state management.
----
+
+
 
 # **Deployment Instructions**
 
@@ -298,17 +307,8 @@ terraform plan -out=tfplan > tfplan.txt
 terraform apply tfplan
 ```
 
----
 
 # **Appendix**
-
-## **Terraform Documentation**
-
-### **Requirements**
-
-
-
-
 
 ### **Modules**
 

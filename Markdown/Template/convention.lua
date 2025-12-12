@@ -143,7 +143,7 @@ end
 local function build_caption(caption)
   if caption and caption.long and #caption.long > 0 then
     local caption_text = inlines_to_latex(caption.long)
-    return '\\caption{' .. caption_text .. '}\n'
+    return '\\captionof{table}{' .. caption_text .. '}\n'
   end
   return ''
 end

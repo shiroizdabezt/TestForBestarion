@@ -112,7 +112,13 @@ $endif$
 \renewcommand{\headrule}{\hbox to\headwidth{\color{gray}\leaders\hrule height \headrulewidth\hfill}}
 
 % Footer
-\fancyfoot[L]{\fontfamily{ptm}\selectfont\textcolor{gray}{\small Copyright \textcopyright\ \CopyrightYear, \CompanyCopyright.}}
+$if(footer_line)$
+    % Nếu có biến footer_line từ YAML, sử dụng nó
+    \fancyfoot[L]{\fontfamily{ptm}\selectfont\textcolor{gray}{\small $footer_line$}}
+$else$
+    % Nếu không, sử dụng các biến \def mặc định
+    \fancyfoot[L]{\fontfamily{ptm}\selectfont\textcolor{gray}{\small Copyright \textcopyright\ \CopyrightYear, \CompanyCopyright.}}
+$endif$
 \fancyfoot[R]{\fontfamily{ptm}\selectfont\thepage}
 
 % Rules
@@ -120,7 +126,8 @@ $endif$
 \setlength{\headheight}{15pt} 
 \renewcommand{\headrule}{\hbox to\headwidth{\color{gray}\leaders\hrule height \headrulewidth\hfill}}
 
-\renewcommand{\footrulewidth}{0pt} 
+\renewcommand{\footrulewidth}{0.4pt} 
+\renewcommand{\footrule}{\hbox to\headwidth{\color{gray}\leaders\hrule height \footrulewidth\hfill}}
 
 % =================================================================
 % --- 5. HEADING STYLES ---
@@ -193,6 +200,11 @@ $endif$
   \ifdefempty{\globalTableCaption}{}{
     \begin{center} \captionof{table}{\globalTableCaption} \end{center}
   }
+}
+
+\captionsetup[figure]{%
+  name=\textit{Illustration},
+  labelfont=normalfont
 }
 
 % =================================================================
