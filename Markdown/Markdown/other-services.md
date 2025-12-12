@@ -18,7 +18,7 @@ changelog:
     changed_date: "2025-12-10"
     approved: ""
     approval_date: "2025-12-10"
-footer_line: "Bản quyền tài liệu @ 2025, Bestarion Inc."
+footer_line: "Bản @ 2025, Bestarion Inc."
 ---
 
 # **Overview**
