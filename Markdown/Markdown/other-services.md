@@ -100,12 +100,16 @@ The Terraform configuration must meet the following requirements:
 
 3. **CIDR Ranges**: Configure access from two CIDR ranges:
    - CIDR block containing current resources 
+
    - CIDR block of the MSS project 
 
 4. **Resource Tagging**: Apply consistent tags to all resources for management and governance:
    - **Environment**: Deployment environment designation
+
    - **Project**: Project identifier
+
    - **Owner**: Responsible party or team
+
    - **Service**: Service name
 
 5. **Security Group Configuration**: Security groups must be properly configured to restrict access to only the required ports from authorized CIDR ranges, enhancing overall security posture.
@@ -148,15 +152,17 @@ Before running the Terraform configuration, verify the following prerequisites a
 
 ## **Prerequisites**
 
-1. **VPC and Subnets**: Verify that the VPC and required subnets exist and are properly configured.  
+1. **VPC and Subnets**: Verify that the VPC and required subnets exist and are properly configured.    
+
 2. **VPC Configuration**: Confirm that VPC ID and subnet name tags match the Terraform configuration.  
+
 3. **IAM Permissions**: Ensure your AWS credentials have all required EC2, S3, and IAM permissions for resource creation.  
 4. **AMI Availability**: Verify that the specified AMI ID is valid and available in the region.  
 5. **AWS Systems Manager Role**: Verify that the AmazonSSMRoleForInstancesQuickSetup IAM role exists in your AWS account.  
 6. **SSH Key Pair**: Verify that the key pair exists in the region for EC2 instance access.  
 7. **Terraform Module**: Verify that the EC2 module is available at the correct path.  
 8. **CIDR Range Validation**: Confirm that both CIDR ranges are properly configured and accessible.  
-9. **AWS CLI Connectivity**: Ensure your machine has network connectivity to AWS APIs and can authenticate with your AWS credentials.  
+9.  **AWS CLI Connectivity**: Ensure your machine has network connectivity to AWS APIs and can authenticate with your AWS credentials.  
 10. **Remote State Backend**: Verify that the S3 backend and networking state file exist for remote state management.
 
 
